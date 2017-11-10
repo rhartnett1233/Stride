@@ -1,4 +1,9 @@
 <resources>
     <string name="app_name">Stride</string>
     <string name="title_activity_splash">SplashActivity</string>
+    <string-array name="sensors">
+        <item>Accelerometer</item>
+        <item>Gyroscope</item>
+        <item>Magnotometer</item>
+    </string-array>
 </resources>
