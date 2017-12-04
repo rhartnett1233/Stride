@@ -1,9 +1,11 @@
 package com.example.richie.stride;
 
-import android.content.Context;
+import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity {
@@ -20,14 +22,19 @@ public class MainActivity extends AppCompatActivity {
         sensorListView = (ListView) findViewById( R.id.sensorListView );
         sensors = res.getStringArray( R.array.sensors );
 
-        Context appContext = getApplicationContext();
-
-        AccelerometerDataDO accelerometerDataDO = new AccelerometerDataDO( appContext );
-        GyroscopeDataDO gyroscopeDataDO = new GyroscopeDataDO( appContext );
-        MagnometerDataDO magnometerDataDO = new MagnometerDataDO( appContext );
-
         SensorAdapter sensorAdapter = new SensorAdapter( this, sensors );
         sensorListView.setAdapter( sensorAdapter );
+
+
+
+        sensorListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                Intent showSensorActivity = new Intent( getApplicationContext(), SensorActivity.class );
+                showSensorActivity.putExtra( "com.example.richie.stride.SENSOR_INDEX", i );
+                startActivity( showSensorActivity );
+            }
+        });
 
     }
 

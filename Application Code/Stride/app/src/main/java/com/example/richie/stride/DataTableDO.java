@@ -5,30 +5,33 @@ import android.content.Context;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.config.AWSConfiguration;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
+import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBAttribute;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBHashKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedList;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
-import com.google.gson.Gson;
 import com.amazonaws.services.dynamodbv2.model.Condition;
+import com.google.gson.Gson;
 
-@DynamoDBTable(tableName = "stride-mobilehub-1191655227-GyroscopeData")
+import java.util.Map;
 
-public class GyroscopeDataDO {
+@DynamoDBTable(tableName = "stride-mobilehub-1191655227-DataTable")
+
+public class DataTableDO {
     private String _userId;
-    private Double _xAxis;
-    private Double _yAxis;
-    private Double _zAxis;
-    private String _timeStamp;
-    private DynamoDBMapper dynamoDBMapper;
+    private String _sessionID;
+    private Map<String, String> _data;
     private String userId;
+    private DynamoDBMapper dynamoDBMapper;
 
-    public GyroscopeDataDO( Context appContext ){
+    public DataTableDO( Context appContext ){
         AWSConfiguration awsConfig = new AWSConfiguration(appContext);
         IdentityManager identityManager = new IdentityManager(appContext,
                 awsConfig);
@@ -44,8 +47,6 @@ public class GyroscopeDataDO {
         _userId = userId;
     }
 
-
-    /******************************************************************/
     @DynamoDBHashKey(attributeName = "userId")
     @DynamoDBAttribute(attributeName = "userId")
     public String getUserId() {
@@ -56,60 +57,49 @@ public class GyroscopeDataDO {
         this._userId = _userId;
     }
 
-    @DynamoDBAttribute(attributeName = "X-Axis")
-    public Double getXAxis() {
-        return _xAxis;
+    @DynamoDBRangeKey(attributeName = "sessionID")
+    @DynamoDBAttribute(attributeName = "sessionID")
+    public String getSessionID() {
+        return _sessionID;
     }
 
-    public void setXAxis(final Double _xAxis) {
-        this._xAxis = _xAxis;
+    public void setSessionID(final String _sessionID) {
+        this._sessionID = _sessionID;
     }
 
-    @DynamoDBAttribute(attributeName = "Y-Axis")
-    public Double getYAxis() {
-        return _yAxis;
+    @DynamoDBAttribute(attributeName = "Data")
+    public Map<String, String> getData() {
+        return _data;
     }
 
-    public void setYAxis(final Double _yAxis) {
-        this._yAxis = _yAxis;
+    public void setData(final Map<String, String> _data) {
+        this._data = _data;
     }
 
-    @DynamoDBAttribute(attributeName = "Z-Axis")
-    public Double getZAxis() {
-        return _zAxis;
-    }
-
-    public void setZAxis(final Double _zAxis) {
-        this._zAxis = _zAxis;
-    }
-
-    @DynamoDBAttribute(attributeName = "timeStamp")
-    public String getTimeStamp() {
-        return _timeStamp;
-    }
-
-    public void setTimeStamp(final String _timeStamp) {
-        this._timeStamp = _timeStamp;
+    public String getUserName(Context appContext, AWSConfiguration awsConfig ){
+        CognitoUserPool userPool = new CognitoUserPool( appContext, awsConfig );
+        CognitoUser user = userPool.getCurrentUser();
+        return user.getUserId();
     }
     /******************************************************************/
 
 
     /******************************************************************/
-    public void createItem( GyroscopeDataDO gyroscopeDataDO_0 ) {
-        final GyroscopeDataDO gyroscopeDataDO = gyroscopeDataDO_0;
+    public void createItem( DataTableDO dataTableDO_0 ) {
+        final DataTableDO dataTableDO = dataTableDO_0;
 
         // Use IdentityManager to get the user identity id.
-        gyroscopeDataDO.setUserId(this.userId);
+        dataTableDO.setUserId(this.userId);
 
-        gyroscopeDataDO.setXAxis(10.0);
-        gyroscopeDataDO.setYAxis(10.0);
-        gyroscopeDataDO.setZAxis(10.0);
+        dataTableDO.setUserId( dataTableDO.getUserId() );
+        dataTableDO.setSessionID( dataTableDO.getSessionID() );
+        dataTableDO.setData(dataTableDO.getData());
 
         new Thread(new Runnable() {
             @Override
             public void run() {
 
-                dynamoDBMapper.save(gyroscopeDataDO);
+                dynamoDBMapper.save(dataTableDO);
 
                 // Item saved
             }
@@ -117,19 +107,18 @@ public class GyroscopeDataDO {
     }
 
 
-    public void readItem() {
+    public void readItem( DataTableDO dataTableDO ) {
+        final String sortKey = dataTableDO.getSessionID();
         new Thread(new Runnable() {
             @Override
             public void run() {
-
-
-                GyroscopeDataDO gyroscopeDataDO = dynamoDBMapper.load(
-                        GyroscopeDataDO.class,
+                DataTableDO dataTableDO = dynamoDBMapper.load(
+                        DataTableDO.class,
 
                         // Use IdentityManager to get the user identity id.
                         userId,
 
-                        "Article1");
+                        sortKey);
 
                 // Item read
                 // Log.d("News Item:", newsItem.toString());
@@ -138,21 +127,20 @@ public class GyroscopeDataDO {
     }
 
 
-    public void updateItem( GyroscopeDataDO gyroscopeDataDO_0 ) {
-        final GyroscopeDataDO gyroscopeDataDO = gyroscopeDataDO_0;
+    public void updateItem( DataTableDO dataTableDO_0 ) {
+        final DataTableDO dataTableDO = dataTableDO_0;
 
         // Use IdentityManager.getUserIdentityId() here to get the user identity id.
-        gyroscopeDataDO.setUserId(userId);
+        dataTableDO.setUserId(userId);
 
-        gyroscopeDataDO.setXAxis(10.0);
-        gyroscopeDataDO.setYAxis(10.0);
-        gyroscopeDataDO.setZAxis(10.0);
+        dataTableDO.setSessionID( dataTableDO.getSessionID() );
+        dataTableDO.setData( dataTableDO.getData() );
 
         new Thread(new Runnable() {
             @Override
             public void run() {
 
-                dynamoDBMapper.save(gyroscopeDataDO);
+                dynamoDBMapper.save(dataTableDO);
 
                 // Item updated
             }
@@ -160,19 +148,19 @@ public class GyroscopeDataDO {
     }
 
 
-    public void deleteItem(final GyroscopeDataDO gyroscopeDataDO_0 ) {
+    public void deleteItem(final DataTableDO dataTableDO_0 ) {
         new Thread(new Runnable() {
             @Override
             public void run() {
 
-                GyroscopeDataDO gyroscopeDataDO = gyroscopeDataDO_0;
+                DataTableDO dataTableDO = dataTableDO_0;
 
                 // Use IdentityManager.getUserIdentityId() here to get the user identity id.
-                gyroscopeDataDO.setUserId(userId);    //partition key
+                dataTableDO.setUserId(userId);    //partition key
 
-                gyroscopeDataDO.setTimeStamp("Article1");  //range (sort) key
+                dataTableDO.setSessionID( dataTableDO.getSessionID() );  //range (sort) key
 
-                dynamoDBMapper.delete(gyroscopeDataDO);
+                dynamoDBMapper.delete(dataTableDO);
 
                 // Item deleted
             }
@@ -180,14 +168,14 @@ public class GyroscopeDataDO {
     }
 
 
-    public void queryNote(final GyroscopeDataDO gyroscopeDataDO_0 ) {
+    public void queryNote(final DataTableDO dataTableDO_0 ) {
 
         new Thread(new Runnable() {
             @Override
             public void run() {
-                GyroscopeDataDO note = gyroscopeDataDO_0;
+                DataTableDO note = dataTableDO_0;
                 note.setUserId(userId);
-                note.setTimeStamp("Article1");
+                note.setSessionID( note.getSessionID() );
 
                 Condition rangeKeyCondition = new Condition()
                         .withComparisonOperator(ComparisonOperator.BEGINS_WITH)
@@ -198,7 +186,7 @@ public class GyroscopeDataDO {
                         .withRangeKeyCondition("articleId", rangeKeyCondition)
                         .withConsistentRead(false);
 
-                PaginatedList<GyroscopeDataDO> result = dynamoDBMapper.query(GyroscopeDataDO.class, queryExpression);
+                PaginatedList<DataTableDO> result = dynamoDBMapper.query(DataTableDO.class, queryExpression);
 
                 Gson gson = new Gson();
                 StringBuilder stringBuilder = new StringBuilder();
@@ -212,6 +200,7 @@ public class GyroscopeDataDO {
                 //updateOutput(stringBuilder.toString());
 
                 if (result.isEmpty()) {
+                    System.out.println( "no items matching query" );
                     // There were no items matching your query.
                 }
             }

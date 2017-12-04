@@ -4,6 +4,6 @@
     <string-array name="sensors">
         <item>Accelerometer</item>
         <item>Gyroscope</item>
-        <item>Magnotometer</item>
+        <item>Magnetometer</item>
     </string-array>
 </resources>
