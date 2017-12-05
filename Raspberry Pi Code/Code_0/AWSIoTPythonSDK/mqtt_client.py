@@ -49,7 +49,7 @@ class mqtt_client:
         counter = 0
         while counter < self.total_meas:
             SESSIONID1 = str(SESSIONID) + "_" + str(counter)
-            MQTT_MSG = json.dumps({"user": "rhartnett","sessionID": SESSIONID1,
+            MQTT_MSG = json.dumps({"user": "Joe","sessionID": SESSIONID1,
                                    "accelerometer x": self.accel[counter][0], "accelerometer y": self.accel[counter][1], "accelerometer z": self.accel[counter][2],
                                    "gyroscope x": self.gyro[counter][0], "gyroscope y": self.gyro[counter][1], "gyroscope z": self.gyro[counter][2],
                                    "magnetometer x": self.mag[counter][0], "magnetometer y": self.mag[counter][1], "magnetometerz": self.mag[counter][2]})
