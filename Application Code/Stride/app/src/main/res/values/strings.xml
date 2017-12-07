@@ -6,4 +6,10 @@
         <item>Gyroscope</item>
         <item>Magnetometer</item>
     </string-array>
+
+    <string-array name="sessions">
+        <item>Session 1</item>
+        <item>Session 2</item>
+        <item>Session 3</item>
+    </string-array>
 </resources>

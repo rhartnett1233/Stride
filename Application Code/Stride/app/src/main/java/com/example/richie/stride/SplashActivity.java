@@ -19,7 +19,6 @@ import com.amazonaws.mobile.auth.ui.SignInActivity;
 import com.amazonaws.mobile.auth.userpools.CognitoUserPoolsSignInProvider;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
-import com.example.richie.stride.R;
 
 public class SplashActivity extends AppCompatActivity {
 
@@ -41,6 +40,7 @@ public class SplashActivity extends AppCompatActivity {
             IdentityManager.setDefaultIdentityManager(identityManager_0);
         }
         final IdentityManager identityManager = identityManager_0;
+
         // Add Amazon Cognito User Pools as Identity Provider.
         IdentityManager.getDefaultIdentityManager().addSignInProvider(
                 CognitoUserPoolsSignInProvider.class);
@@ -97,7 +97,6 @@ public class SplashActivity extends AppCompatActivity {
 
                     // Sign-in succeeded
                     // The identity provider name is available here using:
-                    //     identityProvider.getDisplayName()
 
                 }
 
@@ -127,7 +126,7 @@ public class SplashActivity extends AppCompatActivity {
     }
     /** Go to the main activity. */
     private void goMain(final Activity callingActivity) {
-        callingActivity.startActivity(new Intent(callingActivity, MainActivity.class)
+        callingActivity.startActivity(new Intent(callingActivity, SessionActivity.class)
                 .setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
         callingActivity.finish();
     }

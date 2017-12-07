@@ -25,13 +25,16 @@ public class MainActivity extends AppCompatActivity {
         SensorAdapter sensorAdapter = new SensorAdapter( this, sensors );
         sensorListView.setAdapter( sensorAdapter );
 
+        Intent in = getIntent();
+        final int curSession = in.getIntExtra( "com.example.richie.SESSION_INDEX", -1 );
 
 
         sensorListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
                 Intent showSensorActivity = new Intent( getApplicationContext(), SensorActivity.class );
-                showSensorActivity.putExtra( "com.example.richie.stride.SENSOR_INDEX", i );
+                showSensorActivity.putExtra( "com.example.richie.SENSOR_INDEX", i );
+                showSensorActivity.putExtra( "com.example.richie.SESSION_INDEX", curSession);
                 startActivity( showSensorActivity );
             }
         });

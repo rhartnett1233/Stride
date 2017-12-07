@@ -2,8 +2,6 @@ package com.example.richie.stride;
 
 import android.content.Context;
 
-import com.amazonaws.auth.AWSCredentialsProvider;
-import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUser;
 import com.amazonaws.mobileconnectors.cognitoidentityprovider.CognitoUserPool;
@@ -13,12 +11,10 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBQueryExpression;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBRangeKey;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
-import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedList;
-import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.model.AttributeValue;
 import com.amazonaws.services.dynamodbv2.model.ComparisonOperator;
 import com.amazonaws.services.dynamodbv2.model.Condition;
-import com.google.gson.Gson;
 
 import java.util.Map;
 
@@ -28,24 +24,10 @@ public class DataTableDO {
     private String _userId;
     private String _sessionID;
     private Map<String, String> _data;
-    private String userId;
-    private DynamoDBMapper dynamoDBMapper;
+    private String userName;
+    private PaginatedQueryList<DataTableDO> sessionData;
+    private int totalSessions;
 
-    public DataTableDO( Context appContext ){
-        AWSConfiguration awsConfig = new AWSConfiguration(appContext);
-        IdentityManager identityManager = new IdentityManager(appContext,
-                awsConfig);
-        IdentityManager.setDefaultIdentityManager(identityManager);
-        final AWSCredentialsProvider credentialsProvider = identityManager.getCredentialsProvider();
-        userId = identityManager.getCachedUserID();
-        AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider);
-        this.dynamoDBMapper = DynamoDBMapper.builder()
-                .dynamoDBClient(dynamoDBClient)
-                .awsConfiguration(awsConfig)
-                .build();
-
-        _userId = userId;
-    }
 
     @DynamoDBHashKey(attributeName = "userId")
     @DynamoDBAttribute(attributeName = "userId")
@@ -76,135 +58,126 @@ public class DataTableDO {
         this._data = _data;
     }
 
-    public String getUserName(Context appContext, AWSConfiguration awsConfig ){
+    public String getUserName(){ return userName; }
+
+    public String findUserName(Context appContext, AWSConfiguration awsConfig ){
         CognitoUserPool userPool = new CognitoUserPool( appContext, awsConfig );
         CognitoUser user = userPool.getCurrentUser();
-        return user.getUserId();
+        userName = user.getUserId();
+        return userName;
     }
     /******************************************************************/
 
 
     /******************************************************************/
-    public void createItem( DataTableDO dataTableDO_0 ) {
-        final DataTableDO dataTableDO = dataTableDO_0;
-
-        // Use IdentityManager to get the user identity id.
-        dataTableDO.setUserId(this.userId);
-
-        dataTableDO.setUserId( dataTableDO.getUserId() );
-        dataTableDO.setSessionID( dataTableDO.getSessionID() );
-        dataTableDO.setData(dataTableDO.getData());
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-
-                dynamoDBMapper.save(dataTableDO);
-
-                // Item saved
-            }
-        }).start();
+    public void display(){
+        System.out.println("*********************************************");
+        System.out.println( "UserName: " + userName );
+        System.out.println( "SessionID: " + getSessionID() );
+        System.out.println( "Map: " + getData() );
+        System.out.println("*********************************************");
     }
 
 
-    public void readItem( DataTableDO dataTableDO ) {
-        final String sortKey = dataTableDO.getSessionID();
-        new Thread(new Runnable() {
-            @Override
+    public void createItem( final DynamoDBMapper dynamoDBMapper, String user, String session, Map<String, String> data ) throws InterruptedException {
+        final DataTableDO dataTableDO = new DataTableDO();
+        dataTableDO.setUserId( user );
+        dataTableDO.setSessionID( session );
+        dataTableDO.setData( data );
+        Runnable runnable = new Runnable() {
             public void run() {
-                DataTableDO dataTableDO = dynamoDBMapper.load(
-                        DataTableDO.class,
-
-                        // Use IdentityManager to get the user identity id.
-                        userId,
-
-                        sortKey);
-
-                // Item read
-                // Log.d("News Item:", newsItem.toString());
+                dynamoDBMapper.save( dataTableDO );
             }
-        }).start();
+        };
+        Thread mythread = new Thread(runnable);
+        mythread.start();
+        mythread.join();
     }
 
 
-    public void updateItem( DataTableDO dataTableDO_0 ) {
-        final DataTableDO dataTableDO = dataTableDO_0;
-
-        // Use IdentityManager.getUserIdentityId() here to get the user identity id.
-        dataTableDO.setUserId(userId);
-
-        dataTableDO.setSessionID( dataTableDO.getSessionID() );
-        dataTableDO.setData( dataTableDO.getData() );
-
-        new Thread(new Runnable() {
-            @Override
+    public void readItem( final DynamoDBMapper dynamoDBMapper, final String hashKey, final String rangeKey ) throws InterruptedException {
+        Runnable runnable = new Runnable() {
             public void run() {
-
-                dynamoDBMapper.save(dataTableDO);
-
-                // Item updated
+                DataTableDO dd = dynamoDBMapper.load( DataTableDO.class, hashKey, rangeKey );
+                if( dd == null )
+                    System.out.println( "DID NOT WORK !!!!!!!!!!!!!" );
+                else {
+                    System.out.println("*** DATA *** ");
+                    System.out.println( dd.getData() );
+                }
             }
-        }).start();
+        };
+        Thread mythread = new Thread(runnable);
+        mythread.start();
+        mythread.join();
     }
 
 
-    public void deleteItem(final DataTableDO dataTableDO_0 ) {
-        new Thread(new Runnable() {
-            @Override
+    public void updateItem( final DynamoDBMapper dynamoDBMapper, final DataTableDO dataTableDO, final Map<String, String> data ) throws InterruptedException {
+        Runnable runnable = new Runnable() {
             public void run() {
-
-                DataTableDO dataTableDO = dataTableDO_0;
-
-                // Use IdentityManager.getUserIdentityId() here to get the user identity id.
-                dataTableDO.setUserId(userId);    //partition key
-
-                dataTableDO.setSessionID( dataTableDO.getSessionID() );  //range (sort) key
-
-                dynamoDBMapper.delete(dataTableDO);
-
-                // Item deleted
+                DataTableDO dd = dynamoDBMapper.load( DataTableDO.class, "("+dataTableDO.getUserName()+")" , "("+dataTableDO.getSessionID()+")" );
+                if( dd == null )
+                    System.out.println( "DID NOT WORK !!!!!!!!!!!!!" );
+                else {
+                    dd.setData( data );
+                    dynamoDBMapper.save( dd );
+                }
             }
-        }).start();
+        };
+        Thread mythread = new Thread(runnable);
+        mythread.start();
+        mythread.join();
     }
 
 
-    public void queryNote(final DataTableDO dataTableDO_0 ) {
-
-        new Thread(new Runnable() {
-            @Override
+    public void deleteItem(final DynamoDBMapper dynamoDBMapper, final DataTableDO dataTableDO ) {
+        Runnable runnable = new Runnable() {
             public void run() {
-                DataTableDO note = dataTableDO_0;
-                note.setUserId(userId);
-                note.setSessionID( note.getSessionID() );
+                dynamoDBMapper.delete( dataTableDO );
+            }
+        };
+        Thread mythread = new Thread(runnable);
+        mythread.start();
+    }
 
+
+    public PaginatedQueryList<DataTableDO> getSessionData(final DynamoDBMapper dynamoDBMapper, final DataTableDO dataTableDO, final int session ) throws InterruptedException {
+        String temp = Integer.toString( session );
+        final String sess = "(" + temp + "_";
+        Runnable runnable = new Runnable() {
+            public void run() {
                 Condition rangeKeyCondition = new Condition()
-                        .withComparisonOperator(ComparisonOperator.BEGINS_WITH)
-                        .withAttributeValueList(new AttributeValue().withS("Trial"));
+                        .withComparisonOperator(ComparisonOperator.BEGINS_WITH.toString())
+                        .withAttributeValueList(new AttributeValue().withS(sess.toString()));
 
                 DynamoDBQueryExpression queryExpression = new DynamoDBQueryExpression()
-                        .withHashKeyValues(note)
-                        .withRangeKeyCondition("articleId", rangeKeyCondition)
+                        .withHashKeyValues(dataTableDO)
+                        .withRangeKeyCondition("sessionID", rangeKeyCondition)
                         .withConsistentRead(false);
 
-                PaginatedList<DataTableDO> result = dynamoDBMapper.query(DataTableDO.class, queryExpression);
-
-                Gson gson = new Gson();
-                StringBuilder stringBuilder = new StringBuilder();
-
-                // Loop through query results
-                for (int i = 0; i < result.size(); i++) {
-                    String jsonFormOfItem = gson.toJson(result.get(i));
-                    stringBuilder.append(jsonFormOfItem + "\n\n");
-                }
-
-                //updateOutput(stringBuilder.toString());
-
-                if (result.isEmpty()) {
-                    System.out.println( "no items matching query" );
-                    // There were no items matching your query.
-                }
+                sessionData = dynamoDBMapper.query(DataTableDO.class, queryExpression);
             }
-        }).start();
+        };
+        Thread mythread = new Thread(runnable);
+        mythread.start();
+        mythread.join();
+        return sessionData;
+    }
+
+    public int getTotalSessions( final DynamoDBMapper dynamoDBMapper, final DataTableDO dataTableDO ) throws InterruptedException {
+        int index = 0;
+        PaginatedQueryList<DataTableDO> resList;
+        while( true ){
+            resList = getSessionData( dynamoDBMapper, dataTableDO, index+1 );
+            if( resList == null || resList.size() == 0 ){
+                break;
+            }
+            else {
+                index = index + 1;
+            }
+        }
+        return index;
     }
 
 }
