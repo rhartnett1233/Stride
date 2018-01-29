@@ -20,9 +20,11 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
-        <activity android:name=".MainActivity" />
+        <activity android:name=".MeasurementActivity" />
         <activity android:name=".SensorActivity" />
-        <activity android:name=".SessionActivity"></activity>
+        <activity android:name=".SessionActivity" />
+        <activity android:name=".GraphActivity" />
+        <activity android:name=".DataDisplayListActivity"></activity>
     </application>
 
 </manifest>

@@ -101,7 +101,7 @@ public class SplashActivity extends AppCompatActivity {
                 }
 
                 // On Success of SignIn go to your startup activity
-                activity.startActivity(new Intent(activity, MainActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
+                activity.startActivity(new Intent(activity, MeasurementActivity.class).setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP));
             }
 
             @Override

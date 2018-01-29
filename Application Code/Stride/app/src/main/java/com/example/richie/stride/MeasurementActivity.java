@@ -8,7 +8,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
-public class MainActivity extends AppCompatActivity {
+public class MeasurementActivity extends AppCompatActivity {
 
     ListView sensorListView;
     String[] sensors;
@@ -16,7 +16,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_measurement);
 
         Resources res = getResources();
         sensorListView = (ListView) findViewById( R.id.sensorListView );
@@ -32,7 +32,7 @@ public class MainActivity extends AppCompatActivity {
         sensorListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent showSensorActivity = new Intent( getApplicationContext(), SensorActivity.class );
+                Intent showSensorActivity = new Intent( getApplicationContext(), DataDisplayListActivity.class );
                 showSensorActivity.putExtra( "com.example.richie.SENSOR_INDEX", i );
                 showSensorActivity.putExtra( "com.example.richie.SESSION_INDEX", curSession);
                 startActivity( showSensorActivity );

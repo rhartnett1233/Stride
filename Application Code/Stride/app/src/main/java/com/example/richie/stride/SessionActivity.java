@@ -69,7 +69,7 @@ public class SessionActivity extends AppCompatActivity {
         sessionListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
-                Intent showSensorListView = new Intent( getApplicationContext(), MainActivity.class );
+                Intent showSensorListView = new Intent( getApplicationContext(), MeasurementActivity.class );
                 showSensorListView.putExtra( "com.example.richie.SESSION_INDEX", i );
                 startActivity( showSensorListView );
             }
