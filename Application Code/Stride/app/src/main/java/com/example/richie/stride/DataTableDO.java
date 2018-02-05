@@ -64,6 +64,10 @@ public class DataTableDO {
         CognitoUserPool userPool = new CognitoUserPool( appContext, awsConfig );
         CognitoUser user = userPool.getCurrentUser();
         userName = user.getUserId();
+        System.out.println( "****************" );
+        System.out.println( userName );
+        System.out.println( user.getUserPoolId() );
+        System.out.println( "****************" );
         return userName;
     }
     /******************************************************************/
