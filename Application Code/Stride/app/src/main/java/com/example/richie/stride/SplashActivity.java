@@ -5,11 +5,15 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.Toast;
 
-import com.amazonaws.auth.CognitoCachingCredentialsProvider;
 import com.amazonaws.mobile.auth.core.DefaultSignInResultHandler;
 import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.auth.core.IdentityProvider;
+import com.amazonaws.mobile.auth.core.StartupAuthErrorDetails;
+import com.amazonaws.mobile.auth.core.StartupAuthResult;
+import com.amazonaws.mobile.auth.core.StartupAuthResultHandler;
+import com.amazonaws.mobile.auth.core.signin.AuthException;
 import com.amazonaws.mobile.auth.ui.AuthUIConfiguration;
 import com.amazonaws.mobile.auth.ui.SignInActivity;
 import com.amazonaws.mobile.auth.userpools.CognitoUserPoolsSignInProvider;
@@ -27,8 +31,31 @@ public class SplashActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_splash);
 
-        IdentityManager identityManager_0 = IdentityManager.getDefaultIdentityManager();
         final AWSConfiguration awsConfiguration = new AWSConfiguration(getApplicationContext());
+
+        //new shit here
+        //getCachedIdentityId() us-east-1:6eddb38b-8f19-42b7-87e1-7a1bee0c42c9
+        //getUserPoolID() us-east-1_ygHRtXrAL
+        //getUserID();
+        /*CognitoCachingCredentialsProvider cc = new CognitoCachingCredentialsProvider( getApplicationContext(), awsConfiguration );
+        System.out.println( "*************" );
+        System.out.println( "COGNITO CACHED ID" );
+        System.out.println( cc.getCachedIdentityId() );
+        System.out.println( cc.getIdentityId() );
+        System.out.println( "*************" );
+
+        cc.clearCredentials();
+
+        System.out.println( "*************" );
+        System.out.println( "COGNITO CACHED ID" );
+        System.out.println( cc.getCachedIdentityId() );
+        System.out.println( cc.getIdentityId() );
+        System.out.println( "*************" );*/
+        // ends here
+
+
+        IdentityManager identityManager_0 = IdentityManager.getDefaultIdentityManager();
+
         // If IdentityManager is not created, create it
         if (identityManager_0 == null) {
             identityManager_0 =
@@ -41,26 +68,19 @@ public class SplashActivity extends AppCompatActivity {
         IdentityManager.getDefaultIdentityManager().addSignInProvider(
                 CognitoUserPoolsSignInProvider.class);
 
-        //new shit here
-        CognitoCachingCredentialsProvider cc = new CognitoCachingCredentialsProvider( getApplicationContext(), awsConfiguration );
-        System.out.println( "*************" );
-        System.out.println( "COGNITO CACHED ID" );
-        System.out.println( cc.getCachedIdentityId() );
-        System.out.println( "*************" );
-        // ends here
-
-        doSignIn(IdentityManager.getDefaultIdentityManager());
+        /*try {
+            doSignIn(IdentityManager.getDefaultIdentityManager());
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }*/
 
 
-        /*identityManager.doStartupAuth(this, new StartupAuthResultHandler() {
+        identityManager.doStartupAuth(this, new StartupAuthResultHandler() {
 
             @Override
             public void onComplete(final StartupAuthResult authResults) {
 
-                doSignIn(IdentityManager.getDefaultIdentityManager());
-                return;
-
-                /*if (authResults.isUserSignedIn()) {
+                if (authResults.isUserSignedIn()) {
 
                     final IdentityProvider provider = identityManager.getCurrentIdentityProvider();
 
@@ -89,17 +109,21 @@ public class SplashActivity extends AppCompatActivity {
 
                     }
 
-                    doSignIn(IdentityManager.getDefaultIdentityManager());
+                    try {
+                        doSignIn(IdentityManager.getDefaultIdentityManager());
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
                     return;
                 }
 
 
             }
-        }, 2000);*/
+        }, 2000);
     }
 
 
-    private void doSignIn(final IdentityManager identityManager) {
+    private void doSignIn(final IdentityManager identityManager) throws InterruptedException {
         identityManager.setUpToAuthenticate(SplashActivity.this, new DefaultSignInResultHandler() {
 
             @Override
@@ -131,10 +155,61 @@ public class SplashActivity extends AppCompatActivity {
                 // .signInButton(GoogleButton.class)
                 .build();
 
+        /*AWSConfiguration awsConfiguration = new AWSConfiguration(getApplicationContext());
+        Context context = SplashActivity.this;
+        SignInActivity.startSignInActivity(context, config);
+        CognitoUserPool userPool = new CognitoUserPool(context, awsConfiguration);
+        final CognitoUser user = userPool.getCurrentUser();
+        System.out.println("*****************");
+        System.out.println( "SPLASH USERNAME" );
+        System.out.println( user.getUserId() );
+        System.out.println("*****************");
+        Runnable runnable = new Runnable() {
+            public void run() {
+                GetDetailsHandler handler = new GetDetailsHandler() {
+                    @Override
+                    public void onSuccess(CognitoUserDetails cognitoUserDetails) {
+                        CognitoUserAttributes attributes = cognitoUserDetails.getAttributes();
+                        Map<String, String> map1 = attributes.getAttributes();
+                        System.out.println( "*******************" );
+                        System.out.println( "COGNITO USER ATTRIBUTES" );
+                        for(Map.Entry entry : map1.entrySet()){
+                            System.out.println(entry.getKey() + ", " + entry.getValue());
+                        }
+                        System.out.println( "*******************" );
+
+                        CognitoUserSettings settings = cognitoUserDetails.getSettings();
+                        Map<String, String> map2 = attributes.getAttributes();
+                        System.out.println( "*******************" );
+                        System.out.println( "COGNITO USER Settings" );
+                        for(Map.Entry entry : map2.entrySet()){
+                            System.out.println(entry.getKey() + ", " + entry.getValue());
+                        }
+                        System.out.println( "*******************" );
+                    }
+
+                    @Override
+                    public void onFailure(Exception exception) {
+                        System.out.println( "*******************" );
+                        System.out.println( "COGNITO USER ATTRIBUTES FAILED" );
+                        System.out.println( exception );
+                        System.out.println( "*******************" );
+                    }
+                };
+                user.getDetails(handler);
+                SplashActivity.this.finish();
+            }
+        };
+        Thread mythread = new Thread(runnable);
+        mythread.start();
+        mythread.join();*/
         Context context = SplashActivity.this;
         SignInActivity.startSignInActivity(context, config);
         SplashActivity.this.finish();
     }
+
+
+
     /** Go to the main activity. */
     private void goMain(final Activity callingActivity) {
         callingActivity.startActivity(new Intent(callingActivity, SessionActivity.class)

@@ -43,8 +43,8 @@ public class SessionActivity extends AppCompatActivity {
         /**********************************************/
         final DataTableDO dataTableDO = new DataTableDO();
         Context con = getApplicationContext();
-        dataTableDO.findUserName( con, awsConfig );
-        //dataTableDO.setUserId( "(rhartnett)" );
+        //dataTableDO.findUserName( con, awsConfig );
+        dataTableDO.setUserId( "(rhartnett)" );
 
         try {
             totalSessions = dataTableDO.getTotalSessions( dynamoDBMapper, dataTableDO );
