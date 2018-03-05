@@ -16,6 +16,7 @@ import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 public class Therapist_View_Patients extends AppCompatActivity {
@@ -51,8 +52,31 @@ public class Therapist_View_Patients extends AppCompatActivity {
         dataTableDO.setUserId( "(rhartnett)" );
 
         //call method to get names of all therapist patients
-        //String[] patient_names = getPatientNames();
-        final String patient_names[] = { "Richie", "Nick", "Joe", "Jarred", "Jack", "John", "Kate", "Maddie", "Allie" };
+        //section gets names from Therapist_Patient_List database and puts them in list
+        TherapistPatientListTableDO table = new TherapistPatientListTableDO();
+        table.setTUser( "Richie" );
+        PaginatedQueryList<TherapistPatientListTableDO> patientList = null;
+        try {
+            patientList = table.getPatientList( dynamoDBMapper, table, table.getTUser() );
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        int numPatients = patientList.size();
+        final String[] patient_names = new String[numPatients];
+
+        if( patientList == null || patientList.size() == 0 ){
+            System.out.println("###################\nDID NOT WORK\n##################");
+        }
+        else{
+            int index = 0;
+            while( index < patientList.size() ){
+                TherapistPatientListTableDO curPatient = patientList.get( index );
+                patient_names[index] = curPatient.getPUser();
+                index++;
+            }
+        }
+        /////////////////////////////////////////////////////
 
         patientListView = (ListView) findViewById(R.id.patientListView);
         editSearch = (EditText) findViewById(R.id.editSearch);

@@ -15,21 +15,6 @@
         android:theme="@style/Theme.AppCompat.Light.NoActionBar">
 
         <!--
-        Original
-        <activity android:name=".SplashActivity">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
-
-                <category android:name="android.intent.category.LAUNCHER" />
-            </intent-filter>
-        </activity>
-        <activity android:name=".MeasurementActivity" />
-        <activity android:name=".SensorActivity" />
-        <activity android:name=".SessionActivity" />
-        <activity android:name=".GraphActivity" />
-        <activity android:name=".DataDisplayListActivity"></activity>
-        -->
-
         <activity android:name=".Therapist_View_Patients">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -42,6 +27,22 @@
         <activity android:name=".SessionActivity" />
         <activity android:name=".GraphActivity" />
         <activity android:name=".DataDisplayListActivity" />
+        <activity android:name=".Therapist_Second_Screen" />
+        <activity android:name=".Therapist_Performace_Options" />
+        <activity android:name=".Therapist_Performance_Data" />
+        <activity android:name=".Therapist_Program_Workout" />
+        <activity android:name=".Therapist_Edit_Patient_Info"></activity>
+        -->
+
+        <activity android:name=".LoginActivity">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+        <activity android:name=".CreateAccountActivity" />
+        <activity android:name=".Therapist_View_Patients" />
         <activity android:name=".Therapist_Second_Screen" />
         <activity android:name=".Therapist_Performace_Options" />
         <activity android:name=".Therapist_Performance_Data" />
