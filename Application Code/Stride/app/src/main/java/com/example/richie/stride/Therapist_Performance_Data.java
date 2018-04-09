@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ListView;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
@@ -62,14 +64,14 @@ public class Therapist_Performance_Data extends AppCompatActivity {
         try {
             allData = overallPatientPerformanceTableDO.getAllUserData(dynamoDBMapper, overallPatientPerformanceTableDO);
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            System.out.println( "NO VALUES TO WORK WITH" );
         }
 
         if( allData != null ){
 
-            //Stride of HeelToe
+            //Stride or HeelToe
             if( data_type_list[0] == 'S' || data_type_list[0] == 'H' ) {
-                String[][] seperated_data;
+                final String[][] seperated_data;
                 if( data_type_list[0] == 'S' )
                     seperated_data = overallPatientPerformanceTableDO.getStrideDataDisplay(allData);
                 else
@@ -123,6 +125,48 @@ public class Therapist_Performance_Data extends AppCompatActivity {
                 }
                 Therapist_Data_Adapter adapter = new Therapist_Data_Adapter(this, seperated_data[0], list_session, list_avg, list_goal);
                 list.setAdapter(adapter);
+
+                list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(AdapterView<?> adapterView, View view, int i, long l) {
+                        Intent nextIntent = new Intent( getApplicationContext(), Therapist_Performance_Session_Data.class );
+                        char[] temp_sess = seperated_data[1][i].toCharArray();
+                        String res_session = "";
+                        int index_sess = 0;
+                        while( index_sess < temp_sess.length ){
+                            if( temp_sess[index_sess] == ' ' ){
+                                index_sess++;
+                                break;
+                            }
+                            index_sess++;
+                        }
+                        while( index_sess < temp_sess.length ){
+                            res_session = res_session + temp_sess[index_sess];
+                            index_sess++;
+                        }
+
+                        char[] temp_goal = seperated_data[3][i].toCharArray();
+                        String res_goal = "";
+                        int index_goal = 0;
+                        while( index_goal < temp_goal.length ){
+                            if( temp_goal[index_goal] == ' ' ){
+                                index_goal++;
+                                break;
+                            }
+                            index_goal++;
+                        }
+                        while( index_goal < temp_goal.length ){
+                            res_goal = res_goal + temp_goal[index_goal];
+                            index_goal++;
+                        }
+
+                        nextIntent.putExtra( "com.example.richie.CUR_PATIENT", curPatient );
+                        nextIntent.putExtra( "com.example.richie.SESSION", res_session );
+                        nextIntent.putExtra( "com.example.richie.DATA_TYPE", data_type );
+                        nextIntent.putExtra( "com.example.richie.GOAL", res_goal );
+                        startActivity( nextIntent );
+                    }
+                });
             }
 
             else if( data_type_list[0] == 'F' || data_type_list[0] == 'C' ){

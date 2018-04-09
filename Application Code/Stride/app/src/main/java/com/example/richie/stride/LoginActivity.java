@@ -80,7 +80,7 @@ public class LoginActivity extends AppCompatActivity {
                 .build();
         /**********************************************/
 
-        loginButton.setEnabled(false);
+        //loginButton.setEnabled(false);
 
         String username = usernameText.getText().toString();
         String password = passwordText.getText().toString();
@@ -101,12 +101,14 @@ public class LoginActivity extends AppCompatActivity {
         }
         else if( valid == 1 ){
             Intent in = new Intent( getApplicationContext(), Therapist_View_Patients.class );
+            in.putExtra( "com.example.richie.CURRENT_THERAPIST", username );
             startActivity( in );
         }
-        /*else if( valid == 2 ){
+        else if( valid == 2 ){
             Intent in = new Intent( getApplicationContext(), Patient_First_Screen.class );
+            in.putExtra( "com.example.richie.CURRENT_PATIENT", username );
             startActivity( in );
-        }*/
+        }
     }
 
     @Override
@@ -122,14 +124,14 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     public void onLoginSuccess() {
-        loginButton.setEnabled(true);
+        //loginButton.setEnabled(true);
         //finish();
     }
 
     public void onLoginFailed() {
         Toast.makeText(getBaseContext(), "Login failed", Toast.LENGTH_LONG).show();
 
-        loginButton.setEnabled(true);
+        //loginButton.setEnabled(true);
     }
 
 

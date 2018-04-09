@@ -21,7 +21,9 @@ android {
 
 allprojects {
     repositories {
-        maven { url "https://jitpack.io" }
+        maven {
+            url "https://jitpack.io"
+        }
     }
 }
 
@@ -45,4 +47,9 @@ dependencies {
     compile('com.amazonaws:aws-android-sdk-auth-ui:2.6.+@aar') { transitive = true; }
 
     compile 'com.amazonaws:aws-android-sdk-ddb-mapper:2.6.+'
+
+    compile 'dyanamitechetan.vusikview:vusikview:1.1'
+
+    compile 'org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.1.0'
+    compile 'org.eclipse.paho:org.eclipse.paho.android.service:1.1.1'
 }

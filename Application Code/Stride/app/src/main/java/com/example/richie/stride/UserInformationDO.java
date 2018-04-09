@@ -8,8 +8,6 @@ import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBRangeKey
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBTable;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 
-import java.util.Map;
-
 @DynamoDBTable(tableName = "stride-mobilehub-1191655227-User_Information")
 
 public class UserInformationDO {
@@ -104,14 +102,18 @@ public class UserInformationDO {
     }
 
 
-    public void updateItem( final DynamoDBMapper dynamoDBMapper, final DataTableDO dataTableDO, final Map<String, String> data ) throws InterruptedException {
+    public void updateItem( final DynamoDBMapper dynamoDBMapper, final UserInformationDO userInformationDO ) throws InterruptedException {
         Runnable runnable = new Runnable() {
             public void run() {
-                DataTableDO dd = dynamoDBMapper.load( DataTableDO.class, "("+dataTableDO.getUserName()+")" , "("+dataTableDO.getSessionID()+")" );
+                UserInformationDO dd = dynamoDBMapper.load( UserInformationDO.class, userInformationDO.getUsername() , userInformationDO.getUserType() );
                 if( dd == null )
                     System.out.println( "DID NOT WORK !!!!!!!!!!!!!" );
                 else {
-                    dd.setData( data );
+                    dd.setUsername( userInformationDO.getUsername() );
+                    dd.setPassword( userInformationDO.getPassword() );
+                    dd.setUserType( userInformationDO.getUserType() );
+                    dd.setPhone( userInformationDO.getPhone() );
+                    dd.setEmail( userInformationDO.getEmail() );
                     dynamoDBMapper.save( dd );
                 }
             }

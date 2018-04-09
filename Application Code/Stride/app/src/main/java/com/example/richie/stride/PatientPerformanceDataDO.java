@@ -111,7 +111,7 @@ public class PatientPerformanceDataDO {
                         .withRangeKeyCondition("session", rangeKeyCondition)
                         .withConsistentRead(false);
 
-                sessionData = dynamoDBMapper.query(DataTableDO.class, queryExpression);
+                sessionData = dynamoDBMapper.query(PatientPerformanceDataDO.class, queryExpression);
             }
         };
         Thread mythread = new Thread(runnable);
@@ -133,6 +133,48 @@ public class PatientPerformanceDataDO {
             }
         }
         return index;
+    }
+
+
+    public String[][] getStrideDataDisplay( PaginatedQueryList<PatientPerformanceDataDO> list ){
+        String[] meas = new String[list.size()];
+        String[] strideLength = new String[list.size()];
+
+        int index = 0;
+        while( index < list.size() ){
+            PatientPerformanceDataDO cur_data = list.get(index);
+            Map<String, String> map = cur_data.getData();
+            String temp_session = map.get( "sessionID" );
+            meas[index] =temp_session;
+            strideLength[index] = map.get("StrideLength");
+            index++;
+        }
+
+        String[][] result = new String[4][meas.length];
+        result[0] = meas;
+        result[1] = strideLength;
+        return result;
+    }
+
+
+    public String[][] getHeelToeDataDisplay( PaginatedQueryList<PatientPerformanceDataDO> list ){
+        String[] meas = new String[list.size()];
+        String[] heelToe = new String[list.size()];
+
+        int index = 0;
+        while( index < list.size() ){
+            PatientPerformanceDataDO cur_data = list.get(index);
+            Map<String, String> map = cur_data.getData();
+            String temp_session = map.get( "sessionID" );
+            meas[index] =temp_session;
+            heelToe[index] = map.get("HeeltoToe");
+            index++;
+        }
+
+        String[][] result = new String[4][meas.length];
+        result[0] = meas;
+        result[1] = heelToe;
+        return result;
     }
 
 

@@ -31,6 +31,7 @@ public class Therapist_View_Patients extends AppCompatActivity {
         setContentView(R.layout.activity_therapist__view__patients);
 
         Context appContext = getApplicationContext();
+        Intent in = getIntent();
 
         /**********************************************
          * Connects to AWS backend to retrieve information from database
@@ -48,13 +49,13 @@ public class Therapist_View_Patients extends AppCompatActivity {
                 .awsConfiguration(awsConfig)
                 .build();
         /**********************************************/
-        final DataTableDO dataTableDO = new DataTableDO();
-        dataTableDO.setUserId( "(rhartnett)" );
+
+        final String cur_therapist = in.getStringExtra( "com.example.richie.CURRENT_THERAPIST" );
 
         //call method to get names of all therapist patients
         //section gets names from Therapist_Patient_List database and puts them in list
         TherapistPatientListTableDO table = new TherapistPatientListTableDO();
-        table.setTUser( "Richie" );
+        table.setTUser( cur_therapist );
         PaginatedQueryList<TherapistPatientListTableDO> patientList = null;
         try {
             patientList = table.getPatientList( dynamoDBMapper, table, table.getTUser() );
@@ -106,6 +107,7 @@ public class Therapist_View_Patients extends AppCompatActivity {
                 Intent showTherapistOptions = new Intent( getApplicationContext(), Therapist_Second_Screen.class );
                 String selected_patient = patient_names[i];
                 showTherapistOptions.putExtra( "com.example.richie.PATIENT_INDEX", selected_patient );
+                showTherapistOptions.putExtra( "com.example.richie.CUR_THERAPIST", cur_therapist );
                 startActivity( showTherapistOptions );
             }
         });

@@ -12,7 +12,7 @@
         android:layout_marginStart="26dp"
         android:layout_marginTop="23dp"
         android:text="Date"
-        android:textSize="24sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/sessionNumTextView"
@@ -20,7 +20,8 @@
         android:layout_height="wrap_content"
         android:layout_alignStart="@+id/dateTextView"
         android:layout_below="@+id/dateTextView"
-        android:text="Session Num" />
+        android:text="Session Num"
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/goalTextView"
@@ -29,7 +30,7 @@
         android:layout_above="@+id/sessionNumTextView"
         android:layout_centerHorizontal="true"
         android:text="Goal"
-        android:textSize="24sp" />
+        android:textSize="18sp" />
 
     <TextView
         android:id="@+id/avgTextView"
@@ -39,5 +40,5 @@
         android:layout_alignTop="@+id/goalTextView"
         android:layout_marginEnd="50dp"
         android:text="Avg"
-        android:textSize="24sp" />
+        android:textSize="18sp" />
 </RelativeLayout>

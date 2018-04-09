@@ -100,7 +100,7 @@ public class OverallPatientPerformanceTableDO {
 
     public PaginatedQueryList<OverallPatientPerformanceTableDO> getSessionData(final DynamoDBMapper dynamoDBMapper, final OverallPatientPerformanceTableDO overallPatientPerformanceTableDO, final int session ) throws InterruptedException {
         String temp = Integer.toString( session );
-        final String sess = "(" + temp + "_";
+        final String sess = "(" + temp;
         Runnable runnable = new Runnable() {
             public void run() {
                 Condition rangeKeyCondition = new Condition()
@@ -136,7 +136,6 @@ public class OverallPatientPerformanceTableDO {
                         .withConsistentRead(false);
 
                 overallPatientData = dynamoDBMapper.query(OverallPatientPerformanceTableDO.class, queryExpression);
-                OverallPatientPerformanceTableDO temp = overallPatientData.get(0);
             }
         };
         Thread mythread = new Thread(runnable);
@@ -147,16 +146,11 @@ public class OverallPatientPerformanceTableDO {
 
     public int getTotalSessions( final DynamoDBMapper dynamoDBMapper, final OverallPatientPerformanceTableDO overallPatientPerformanceTableDO ) throws InterruptedException {
         int index = 0;
-        PaginatedQueryList<OverallPatientPerformanceTableDO> resList;
-        while( true ){
-            resList = getSessionData( dynamoDBMapper, overallPatientPerformanceTableDO, index+1 );
-            if( resList == null || resList.size() == 0 ){
-                break;
-            }
-            else {
-                index = index + 1;
-            }
-        }
+        PaginatedQueryList<OverallPatientPerformanceTableDO> resList = getAllUserData( dynamoDBMapper, overallPatientPerformanceTableDO );
+        if( resList == null || resList.size() == 0 )
+            index = 0;
+        else
+            index = resList.size();
         return index;
     }
 

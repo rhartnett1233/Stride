@@ -24,6 +24,7 @@ public class Therapist_Second_Screen extends AppCompatActivity {
         getSupportActionBar().setTitle("");
 
         final String curPatient = in.getStringExtra( "com.example.richie.PATIENT_INDEX" );
+        final String cur_therapist = in.getStringExtra( "com.example.richie.CUR_THERAPIST");
 
         programExerciseButton = (Button) findViewById( R.id.ProgramExerciseButton );
         viewPatientPerformanceButton = (Button) findViewById( R.id.ViewPatientPerformanceButton );
@@ -34,6 +35,7 @@ public class Therapist_Second_Screen extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent( Therapist_Second_Screen.this, Therapist_Program_Workout.class );
                 intent.putExtra("com.example.richie.PATIENT_INDEX", curPatient );
+                intent.putExtra( "com.example.richie.CUR_THERAPIST", cur_therapist );
                 startActivity( intent );
             }
         });
@@ -43,6 +45,7 @@ public class Therapist_Second_Screen extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent( Therapist_Second_Screen.this, Therapist_Performace_Options.class );
                 intent.putExtra("com.example.richie.PATIENT_INDEX", curPatient );
+                intent.putExtra( "com.example.richie.CUR_THERAPIST", cur_therapist );
                 startActivity( intent );
             }
         });
@@ -52,6 +55,7 @@ public class Therapist_Second_Screen extends AppCompatActivity {
             public void onClick(View view) {
                 Intent intent = new Intent( Therapist_Second_Screen.this, Therapist_Edit_Patient_Info.class );
                 intent.putExtra("com.example.richie.PATIENT_INDEX", curPatient );
+                intent.putExtra( "com.example.richie.CUR_THERAPIST", cur_therapist );
                 startActivity( intent );
             }
         });

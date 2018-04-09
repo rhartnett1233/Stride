@@ -107,12 +107,14 @@ public class CreateAccountActivity extends AppCompatActivity {
 
         if( temp_user_type.equals("Therapist") || temp_user_type.equals("therapist") ) {
             Intent in = new Intent(getApplicationContext(), Therapist_View_Patients.class);
+            in.putExtra( "com.example.richie.CURRENT_THERAPIST", temp_name );
             startActivity(in);
         }
-        /*else if( temp_user_type.equals("Patient") || temp_user_type.equals("patient") ){
+        else if( temp_user_type.equals("Patient") || temp_user_type.equals("patient") ){
             Intent in = new Intent(getApplicationContext(), Patient_First_Screen.class);
+            in.putExtra( "com.example.richie.CURRENT_PATIENT", temp_name );
             startActivity(in);
-        }*/
+        }
 
 
         new android.os.Handler().postDelayed(
