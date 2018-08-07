@@ -61,7 +61,5 @@ public class Therapist_Second_Screen extends AppCompatActivity {
         });
 
 
-
-
     }
 }

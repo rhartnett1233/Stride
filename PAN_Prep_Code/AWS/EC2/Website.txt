@@ -1,0 +1,21 @@
+Website Link for Creating/deleting instances and buckets:
+https://linuxacademy.com/howtoguides/posts/show/topic/14209-automating-aws-with-python-and-boto3
+
+--------------------------------------------------------------------------------
+BOTO3 Github:
+https://github.com/boto/boto
+
+DOCS:
+https://boto.readthedocs.org/en/latest/dynamodb2_tut.html
+
+API:
+https://boto.readthedocs.org/en/latest/ref/dynamodb2.html
+--------------------------------------------------------------------------------
+
+Connecting to EC2 Instance with SSH:
+https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/AccessingInstancesLinux.html
+
+
+AWS Plain English:
+https://www.expeditedssl.com/aws-in-plain-english
+

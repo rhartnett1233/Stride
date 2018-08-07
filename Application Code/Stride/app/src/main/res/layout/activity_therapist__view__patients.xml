@@ -16,6 +16,15 @@
         android:theme="@style/ThemeOverlay.AppCompat.ActionBar"
         app:popupTheme="@style/ThemeOverlay.AppCompat.Light" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/fab_add_patient"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="end|bottom"
+        android:layout_margin="16dp"
+        android:src="@drawable/ic_add_patient"
+        app:backgroundTint="@color/sign_in_separator_color" />
+
     <EditText
         android:id="@+id/editSearch"
         android:hint="Search..."

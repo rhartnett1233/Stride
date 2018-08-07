@@ -25,12 +25,15 @@ public class Therapist_Program_Workout extends AppCompatActivity implements Adap
     private ListView workoutListView;
     private Spinner spinner_bpm;
     private Spinner spinner_time;
+    private Spinner spinner_type;
     private Button buttonProgramWorkout;
     private ArrayAdapter<String> adapter_list;
     private ArrayAdapter<String> adapter_bpm;
     private ArrayAdapter<String> adapter_time;
+    private ArrayAdapter<String> adapter_type;
     private String program_bpm = "";
     private String program_time = "";
+    private String program_type = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,6 +65,7 @@ public class Therapist_Program_Workout extends AppCompatActivity implements Adap
         workoutListView = (ListView) findViewById(R.id.workoutListView);
         spinner_bpm = (Spinner) findViewById( R.id.spinner_bpm );
         spinner_time = (Spinner) findViewById( R.id.spinner_time );
+        spinner_type = (Spinner) findViewById( R.id.spinner_type);
         buttonProgramWorkout = (Button) findViewById( R.id.buttonProgramWorkout );
 
         setUpListView( dynamoDBMapper, curPatient );
@@ -69,15 +73,20 @@ public class Therapist_Program_Workout extends AppCompatActivity implements Adap
         //Setting up Spinners///////////////////////////////
         String[] bpm_spinner_values = { "30", "35", "40", "45", "50", "55", "60", "65", "70", "75" };
         String[] time_spinner_values = { "15", "30", "45", "60", "75", "90" };
+        String[] type_spinner_values = {"Standardized", "Progressive"};
         adapter_bpm = new ArrayAdapter<String>( this, R.layout.support_simple_spinner_dropdown_item, bpm_spinner_values );
         adapter_time = new ArrayAdapter<String>( this, R.layout.support_simple_spinner_dropdown_item, time_spinner_values );
+        adapter_type = new ArrayAdapter<String>(this, R.layout.support_simple_spinner_dropdown_item, type_spinner_values );
         adapter_bpm.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         adapter_time.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        adapter_type.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
 
         spinner_bpm.setAdapter( adapter_bpm );
         spinner_time.setAdapter( adapter_time );
+        spinner_type.setAdapter( adapter_type );
         spinner_bpm.setOnItemSelectedListener(this);
         spinner_time.setOnItemSelectedListener(this);
+        spinner_type.setOnItemSelectedListener(this);
         ////////////////////////////////////////////////////
 
         //Setting up Button/////////////////////////////////
@@ -88,7 +97,7 @@ public class Therapist_Program_Workout extends AppCompatActivity implements Adap
                     String name = program_bpm + " Steps/Min for " + program_time + "Sec";
                     PatientWorkoutListDO temp = new PatientWorkoutListDO();
                     try {
-                        temp.createItem(dynamoDBMapper, curPatient, name, "time", program_time, program_bpm );
+                        temp.createItem(dynamoDBMapper, curPatient, name, program_type, program_time, program_bpm );
                         TimeUnit.MILLISECONDS.sleep(50);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -138,8 +147,11 @@ public class Therapist_Program_Workout extends AppCompatActivity implements Adap
         if( temp.getId() == R.id.spinner_bpm ){
             program_bpm = (String) temp.getItemAtPosition( i );
         }
-        else{
+        else if( temp.getId() == R.id.spinner_time ){
             program_time = (String) temp.getItemAtPosition( i );
+        }
+        else{
+            program_type = (String) temp.getItemAtPosition( i );
         }
     }
 

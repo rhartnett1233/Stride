@@ -1,0 +1,45 @@
+
+Create Stack:
+aws cloudformation create-stack --stack-name <name> --template-body file://<path/template.txt> --parameters <parameter>
+
+
+List Stacks:
+aws cloudformation list-stacks
+	- can add filter to end:
+		--stack-status-filter CREATE_COMPLETE
+
+
+Describe Stacks:
+aws cloudformation describe-stacks
+	- can add same filters as list stacks
+
+
+Describe Stack Events:
+aws cloudformation describe-stack-events --stack-name <stack name>
+
+
+Listing Resources:
+aws cloudformation list-stack-resources --stack-name <stack name>
+
+
+Get Template:
+aws cloudformation get-template --stack-name <stack name>
+
+
+Validate Template: to check for syntax errors
+aws cloudformation validate-template --template-url <s3_template URL>
+
+
+Upload Local Artifact:
+aws cloudformation package --template /path_to_template/template.json --s3-bucket mybucket --output json > packaged-template.json
+	-command saves the template that it generates to the path specified by the --output option
+
+
+Quickly Deploying Templates with Transforms
+aws cloudformation deploy --template /path_to_template/my-template.json --stack-name my-new-stack --parameter-overrides Key1=Value1 Key2=Value2
+	-this command creates a change set, executes the change set, and then terminates
+	-reduces the numbers of required steps when you create or update a stack that includes transforms
+
+
+Deleting a Stack:
+aws cloudformation delete-stack --stack-name myteststack

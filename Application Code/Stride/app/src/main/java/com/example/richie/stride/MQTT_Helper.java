@@ -57,6 +57,10 @@ public class MQTT_Helper {
         connect();
     }
 
+    public void end(){
+        mqttAndroidClient.close();
+    }
+
     public void setCallback(MqttCallbackExtended callback) {
         mqttAndroidClient.setCallback(callback);
     }

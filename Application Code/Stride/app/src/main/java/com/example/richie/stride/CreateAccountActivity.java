@@ -19,12 +19,15 @@ public class CreateAccountActivity extends AppCompatActivity {
 
     private android.support.v7.widget.AppCompatButton btn_signup;
     private EditText name;
+    private EditText username;
     private EditText address;
     private EditText email;
     private EditText number;
     private EditText user_type;
     private EditText password;
     private EditText re_password;
+    private EditText leg_length;
+    private EditText height;
     private TextView link_login;
 
     @Override
@@ -34,6 +37,7 @@ public class CreateAccountActivity extends AppCompatActivity {
 
         btn_signup = (android.support.v7.widget.AppCompatButton) findViewById( R.id.btn_signup );
         name = (EditText) findViewById( R.id.input_name );
+        username = (EditText) findViewById( R.id.input_username );
         address = (EditText) findViewById( R.id.input_address );
         email = (EditText) findViewById( R.id.input_email );
         number = (EditText) findViewById( R.id.input_mobile );
@@ -41,6 +45,8 @@ public class CreateAccountActivity extends AppCompatActivity {
         password = (EditText) findViewById( R.id.input_password );
         re_password = (EditText) findViewById( R.id.input_reEnterPassword );
         link_login = (TextView) findViewById( R.id.link_login );
+        height = (EditText) findViewById( R.id.input_height );
+        leg_length = (EditText) findViewById( R.id.input_legLength);
 
         btn_signup.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -76,7 +82,7 @@ public class CreateAccountActivity extends AppCompatActivity {
             return;
         }
 
-        UserInformationDO user = new UserInformationDO();
+        UserInfoNewDO user = new UserInfoNewDO();
 
         /**********************************************/
         Context appContext = getApplicationContext();
@@ -94,25 +100,29 @@ public class CreateAccountActivity extends AppCompatActivity {
         /**********************************************/
 
         String temp_name = name.getText().toString();
+        String temp_username = username.getText().toString();
         String temp_address = address.getText().toString();
         String temp_email = email.getText().toString();
         String temp_number = number.getText().toString();
         String temp_user_type = user_type.getText().toString();
         String temp_password = password.getText().toString();
         String temp_re_password = re_password.getText().toString();
+        String temp_leg_length = leg_length.getText().toString();
+        String temp_height = height.getText().toString();
+
 
 
         // need to add name, username, address
-        user.createItem( dynamoDBMapper, temp_name, temp_password, temp_user_type, temp_email, temp_number );
+        user.createItem( dynamoDBMapper, temp_name, temp_username, temp_address, temp_email, temp_number, temp_user_type, temp_password, temp_leg_length, temp_height );
 
         if( temp_user_type.equals("Therapist") || temp_user_type.equals("therapist") ) {
-            Intent in = new Intent(getApplicationContext(), Therapist_View_Patients.class);
-            in.putExtra( "com.example.richie.CURRENT_THERAPIST", temp_name );
+            Intent in = new Intent(getApplicationContext(), LoginActivity.class);
+            //in.putExtra( "com.example.richie.CURRENT_THERAPIST", temp_name );
             startActivity(in);
         }
         else if( temp_user_type.equals("Patient") || temp_user_type.equals("patient") ){
-            Intent in = new Intent(getApplicationContext(), Patient_First_Screen.class);
-            in.putExtra( "com.example.richie.CURRENT_PATIENT", temp_name );
+            Intent in = new Intent(getApplicationContext(), LoginActivity.class);
+            //in.putExtra( "com.example.richie.CURRENT_PATIENT", temp_name );
             startActivity(in);
         }
 

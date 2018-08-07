@@ -25,6 +25,13 @@
       "Region": "us-east-1"
     }
   },
+  "ContentManager": {
+    "Default": {
+      "Bucket": "stride-hosting-mobilehub-1191655227",
+      "Region": "us-east-1",
+      "CloudFrontURL": "https://d1pva6jxxyb0wp.cloudfront.net"
+    }
+  },
   "PinpointAnalytics": {
     "Default": {
       "AppId": "f1d604e96a5743268bf57fe1dd5f1190",

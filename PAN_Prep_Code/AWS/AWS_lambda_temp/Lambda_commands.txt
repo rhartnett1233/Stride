@@ -1,0 +1,45 @@
+Lambda Commands:
+https://docs.aws.amazon.com/lambda/latest/dg/with-userapp-walkthrough-custom-events-try-more-api.html
+
+
+INVOKE:
+-------------------
+aws lambda invoke \
+--invocation-type RequestResponse \
+--function-name helloworld \
+--region region \
+--log-type Tail \
+--payload '{"key1":"value1", "key2":"value2", "key3":"value3"}' \
+--profile adminuser \
+outputfile.txt 
+
+
+LIST FUNCTIONS:
+-------------------
+aws lambda list-functions \
+--max-items 10 \
+--profile adminuser
+
+
+GET FUNCTION:
+-------------------
+aws lambda get-function \
+--function-name helloworld \
+--region region \
+--profile adminuser
+
+
+GET FUNCTION CONFIGURATION:
+-------------------
+aws lambda get-function-configuration \
+--function-name helloworld \
+--region region \
+--profile adminuser
+
+
+DELETE FUNCTION:
+-------------------
+aws lambda delete-function \
+--function-name helloworld \
+--region region \
+--profile adminuser

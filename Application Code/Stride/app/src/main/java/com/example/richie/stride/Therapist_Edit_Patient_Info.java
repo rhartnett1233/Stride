@@ -21,6 +21,8 @@ public class Therapist_Edit_Patient_Info extends AppCompatActivity {
     private EditText email;
     private EditText number;
     private EditText user_type;
+    private EditText leg_length;
+    private EditText height;
     private android.support.v7.widget.AppCompatButton btn_update_info;
 
     @Override
@@ -32,7 +34,7 @@ public class Therapist_Edit_Patient_Info extends AppCompatActivity {
         final String cur_patient = in.getStringExtra( "com.example.richie.PATIENT_INDEX" );
         final String cur_therapist = in.getStringExtra( "com.example.richie.CUR_THERAPIST");
 
-        UserInformationDO user = new UserInformationDO();
+        UserInfoNewDO user = new UserInfoNewDO();
 
         /**********************************************/
         Context appContext = getApplicationContext();
@@ -49,12 +51,15 @@ public class Therapist_Edit_Patient_Info extends AppCompatActivity {
                 .build();
         /**********************************************/
 
-        PaginatedQueryList<UserInformationDO> user_list = null;
+        PaginatedQueryList<UserInfoNewDO> user_list = null;
         user.setUsername( cur_therapist );
         name = (EditText) findViewById( R.id.input_name );
         email = (EditText) findViewById( R.id.input_email );
         number = (EditText) findViewById( R.id.input_mobile );
         user_type = (EditText) findViewById( R.id.user_type );
+        address = (EditText) findViewById( R.id.input_address );
+        height = (EditText) findViewById( R.id.input_height );
+        leg_length = (EditText) findViewById( R.id.input_leg_length );
         btn_update_info = (android.support.v7.widget.AppCompatButton) findViewById(R.id.btn_update_info);
 
         try {
@@ -70,12 +75,15 @@ public class Therapist_Edit_Patient_Info extends AppCompatActivity {
             email.setText( user.getEmail() );
             number.setText( user.getPhone() );
             user_type.setText( user.getUserType() );
+            address.setText( user.getAddress() );
+            height.setText( user.getHeight() );
+            leg_length.setText( user.getLegLength() );
         }
         else{
             System.out.println( "!!!!!!!!!!!\nSIZE SMALLER THAN 1\n!!!!!!!!!!!!!" );
         }
 
-        final UserInformationDO temp_user = user;
+        final UserInfoNewDO temp_user = user;
         btn_update_info.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -83,15 +91,21 @@ public class Therapist_Edit_Patient_Info extends AppCompatActivity {
                 String temp_email = email.getText().toString();
                 String temp_number = number.getText().toString();
                 String temp_user_type = user_type.getText().toString();
+                String temp_address = address.getText().toString();
+                String temp_height = height.getText().toString();
+                String temp_leg_length = leg_length.getText().toString();
                 System.out.println( "@@@@@@@@@@@@@@@" );
                 System.out.println( temp_number );
                 System.out.println( "@@@@@@@@@@@@@@@" );
-                UserInformationDO new_user = temp_user;
+                UserInfoNewDO new_user = temp_user;
                 new_user.setUsername( temp_name );
                 new_user.setPassword( temp_user.getPassword() );
                 new_user.setUserType( temp_user_type );
                 new_user.setPhone( temp_number );
                 new_user.setEmail( temp_email );
+                new_user.setAddress( temp_address );
+                new_user.setHeight( temp_height );
+                new_user.setLegLength( temp_leg_length );
                 try {
                     temp_user.updateItem( dynamoDBMapper, new_user );
                     System.out.println( "!!!!!!!!!!!\nWORKED\n!!!!!!!!!!!!!" );

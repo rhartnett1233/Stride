@@ -3,6 +3,7 @@ package com.example.richie.stride;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -24,6 +25,7 @@ public class Therapist_View_Patients extends AppCompatActivity {
     private ListView patientListView;
     private EditText editSearch;
     private ArrayAdapter<String> adapter;
+    private FloatingActionButton add_patient;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -81,8 +83,20 @@ public class Therapist_View_Patients extends AppCompatActivity {
 
         patientListView = (ListView) findViewById(R.id.patientListView);
         editSearch = (EditText) findViewById(R.id.editSearch);
+        add_patient = (FloatingActionButton) findViewById(R.id.fab_add_patient);
         adapter = new ArrayAdapter<String>(this, R.layout.patient_list, R.id.textView, patient_names );
         patientListView.setAdapter(adapter);
+
+        add_patient.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent in = new Intent( Therapist_View_Patients.this, Therapist_Add_Patient.class );
+                in.putExtra( "com.example.richie.CURRENT_THERAPIST", cur_therapist );
+                System.out.println( "^^^^^^^^^" );
+                System.out.println( "Therapist_View_patients" );
+                startActivity( in );
+            }
+        });
 
         editSearch.addTextChangedListener(new TextWatcher() {
             @Override

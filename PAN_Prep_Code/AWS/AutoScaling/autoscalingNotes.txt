@@ -1,0 +1,27 @@
+Website Link:
+https://docs.aws.amazon.com/autoscaling/ec2/userguide/what-is-amazon-ec2-auto-scaling.html
+
+
+What Is Amazon EC2 Auto Scaling?:
+- tool used to scale resources up or down depending on traffic or user needs
+- AutoScaling components:
+	1. Groups: EC2 instances are organized into groups so that they can be treated as a logical unit for the purpose of scaling and management
+	2. Launch Configurations: group uses launch configurations as a template for its EC2 instances
+		* When you create a launch configuration, you can specify information such as the AMI ID, instance type, key pair, security groups, and block device mapping for your instances
+		* cannot update launch configurations, can only copy it, modify it and then subplement the new launch configuration for the old one
+	3. Scaling Plans: tells auto scaling when and how to scale
+
+
+Updating Launch Configurations with AWS CLI:
+1. Describe the current launch configuration using the describe-launch-configurations command
+2. Create a new launch configuration using the create-launch-configuration command
+3. Update the launch configuration for the Auto Scaling group using the update-auto-scaling-group command with the --launch-configuration-names parameter
+
+
+Auto Scaling Groups:
+- contains a collection of EC2 instances that share similar characteristics and are treated as a logical grouping for the purposes of instance scaling and management
+- starts by launching enough EC2 instances to meet its desired capacity
+	* Auto Scaling group maintains this number of instances by performing periodic health checks on the instances in the group
+	* If an instance becomes unhealthy, the group terminates the unhealthy instance and launches another instance to replace it
+
+

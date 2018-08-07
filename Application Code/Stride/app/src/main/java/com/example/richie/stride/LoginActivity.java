@@ -87,7 +87,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
         // TODO: Implement your own authentication logic here.
-        UserInformationDO cur_user = new UserInformationDO();
+        UserInfoNewDO cur_user = new UserInfoNewDO();
         int valid = -1;
         try {
             valid = cur_user.validateUser( dynamoDBMapper, username, password );

@@ -25,7 +25,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/input_name"
+            <EditText android:id="@+id/input_name_pat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"
@@ -33,19 +33,41 @@
         </android.support.design.widget.TextInputLayout>
 
         <!-- Address Label -->
-        <!--
         <android.support.design.widget.TextInputLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/input_address"
+            <EditText android:id="@+id/input_address_pat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPostalAddress"
                 android:hint="Address" />
         </android.support.design.widget.TextInputLayout>
-        -->
+
+        <!-- Height Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+            <EditText android:id="@+id/input_height_pat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Height (inches)" />
+        </android.support.design.widget.TextInputLayout>
+
+        <!-- Leg Length Label -->
+        <android.support.design.widget.TextInputLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="8dp">
+            <EditText android:id="@+id/input_leg_length_pat"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Leg Length (inches)" />
+        </android.support.design.widget.TextInputLayout>
 
         <!--  Email Label -->
         <android.support.design.widget.TextInputLayout
@@ -53,7 +75,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/input_email"
+            <EditText android:id="@+id/input_email_pat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textEmailAddress"
@@ -66,7 +88,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/input_mobile"
+            <EditText android:id="@+id/input_mobile_pat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="number"
@@ -79,7 +101,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
             android:layout_marginBottom="8dp">
-            <EditText android:id="@+id/user_type"
+            <EditText android:id="@+id/user_type_pat"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:inputType="textPersonName"

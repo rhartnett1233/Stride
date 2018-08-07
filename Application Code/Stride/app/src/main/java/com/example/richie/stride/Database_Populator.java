@@ -38,33 +38,17 @@ public class Database_Populator extends AppCompatActivity {
                 .build();
         /**********************************************/
 
-        PatientWorkoutListDO patientWorkoutListDO = new PatientWorkoutListDO();
-
-        patientWorkoutListDO.setPatient( "Richie" );
-        patientWorkoutListDO.setType( "time" );
-        patientWorkoutListDO.setValue( "30" );
-        patientWorkoutListDO.setBpm( "60" );
-        patientWorkoutListDO.setWorkout( "60 steps/min for 30 sec" );
+        /*UserInfoNewDO userInfoDO = new UserInfoNewDO();
 
         try {
-            patientWorkoutListDO.createItem( dynamoDBMapper, patientWorkoutListDO );
+            userInfoDO.createItem( dynamoDBMapper, "Sam the Wise", "stwise", "Amherst", "stwise@umass.edu", "1112223333", "Patient", "umass", "41.7", "70" );
+            userInfoDO.createItem( dynamoDBMapper, "Joe Menzie", "jmenzie", "Amherst", "jMenzie@umass.edu", "1112223333", "Patient", "umass", "43.3", "73");
+            userInfoDO.createItem( dynamoDBMapper, "Jack Higgins", "jhiggins", "Amherst", "jHiggins@umass.edu", "1112223333", "Patient", "umass", "41.7", "70" );
+            userInfoDO.createItem( dynamoDBMapper, "Jarred Penney", "jpenney", "Amherst", "jpenney@umass.edu", "1112223333", "Patient", "umass", "41.7", "70");
+            userInfoDO.createItem( dynamoDBMapper, "Richie Hartnett", "rhartnett", "Amherst", "rhartnett@umass.edu", "1112223333", "Therapist", "umass", "41.7", "70");
         } catch (InterruptedException e) {
             e.printStackTrace();
-        }
+        }*/
 
-
-        PatientWorkoutListDO patientWorkoutListDO1 = new PatientWorkoutListDO();
-
-        patientWorkoutListDO1.setPatient( "Richie" );
-        patientWorkoutListDO1.setType( "time" );
-        patientWorkoutListDO1.setValue( "60" );
-        patientWorkoutListDO1.setBpm( "40" );
-        patientWorkoutListDO1.setWorkout( "40 steps/min for 30 sec" );
-
-        try {
-            patientWorkoutListDO1.createItem( dynamoDBMapper, patientWorkoutListDO1 );
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
     }
 }

@@ -19,6 +19,7 @@ public class OverallPatientPerformanceTableDO {
     private String _pUser;
     private String _session;
     private Map<String, String> _data;
+    private OverallPatientPerformanceTableDO temp_user;
     private PaginatedQueryList<OverallPatientPerformanceTableDO> sessionData;
     private PaginatedQueryList<OverallPatientPerformanceTableDO> overallPatientData;
 
@@ -51,21 +52,43 @@ public class OverallPatientPerformanceTableDO {
     /////////////////////////////////////
 
 
-    public void readItem(final DynamoDBMapper dynamoDBMapper, final String hashKey, final String rangeKey ) throws InterruptedException {
+    /*public void createItem( final DynamoDBMapper dynamoDBMapper, String name, String username, String address, String email, String number, String type, String password, String leg ) throws InterruptedException {
+        final OverallPatientPerformanceTableDO overallPatientPerformanceTableDO = new OverallPatientPerformanceTableDO();
+        userInfoDO.setUsername(username);
+        userInfoDO.setName(name);
+        userInfoDO.setAddress(address);
+        userInfoDO.setPassword(password);
+        userInfoDO.setUserType(type);
+        userInfoDO.setEmail(email);
+        userInfoDO.setPhone(number);
+        userInfoDO.setLegLength(leg);
+
+        Runnable runnable = new Runnable() {
+            public void run() {
+                dynamoDBMapper.save( userInfoDO );
+            }
+        };
+        Thread mythread = new Thread(runnable);
+        mythread.start();
+        mythread.join();
+    }*/
+
+
+    public OverallPatientPerformanceTableDO readItem(final DynamoDBMapper dynamoDBMapper, final String hashKey, final String rangeKey ) throws InterruptedException {
         Runnable runnable = new Runnable() {
             public void run() {
                 OverallPatientPerformanceTableDO dd = dynamoDBMapper.load( OverallPatientPerformanceTableDO.class, hashKey, rangeKey );
                 if( dd == null )
                     System.out.println( "DID NOT WORK !!!!!!!!!!!!!" );
                 else {
-                    System.out.println("*** DATA *** ");
-                    System.out.println( dd.getData() );
+                    temp_user = dd;
                 }
             }
         };
         Thread mythread = new Thread(runnable);
         mythread.start();
         mythread.join();
+        return temp_user;
     }
 
 
@@ -172,9 +195,10 @@ public class OverallPatientPerformanceTableDO {
             float temp_average1 = Float.parseFloat(temp_average0);
             temp_average0 = String.format( "%.2f", temp_average1 );
             avg[index] = temp_average0;
-            float temp_goal0 = (float)(Math.random());
-            String temp_goal1 = String.format( "%.2f", temp_goal0 );
-            goal[index] = temp_goal1;
+            String temp_goal0 = map.get("Expected");
+            float temp_goal1 = Float.parseFloat(temp_average0);
+            temp_goal0 = String.format( "%.2f", temp_goal1 );
+            goal[index] = temp_goal0;
             index++;
         }
 

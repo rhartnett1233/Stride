@@ -36,6 +36,7 @@
         <activity android:name=".Therapist_Edit_Patient_Info"></activity>
         -->
 
+
         <activity android:name=".LoginActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -55,9 +56,12 @@
         <activity android:name=".Patient_View_Workouts" />
         <activity android:name=".Patient_Edit_Info" />
         <activity android:name=".Patient_Perform_Workout" />
+        <activity android:name=".Therapist_Performance_Session_Data" />
+
+        <service android:name="org.eclipse.paho.android.service.MqttService" />
+
 
         <!--
-        Populator
         <activity android:name=".Database_Populator">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -66,6 +70,7 @@
             </intent-filter>
         </activity>
         -->
+
 
 
         <!--
@@ -78,9 +83,7 @@
         </activity>
         -->
 
-        <service android:name="org.eclipse.paho.android.service.MqttService" />
-
-        <activity android:name=".Therapist_Performance_Session_Data"></activity>
+        <activity android:name=".Therapist_Add_Patient"></activity>
     </application>
 
 </manifest>

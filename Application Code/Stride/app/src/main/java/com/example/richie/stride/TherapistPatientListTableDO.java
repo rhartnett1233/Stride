@@ -38,6 +38,23 @@ public class TherapistPatientListTableDO {
     //////////////////////////////////////////////
 
 
+    ///////////////////////////////////
+    public void createItem( final DynamoDBMapper dynamoDBMapper, String t_user, String p_user ) throws InterruptedException {
+        final TherapistPatientListTableDO therapistPatientListTableDO = new TherapistPatientListTableDO();
+        therapistPatientListTableDO.setTUser( t_user );
+        therapistPatientListTableDO.setPUser( p_user );
+
+        Runnable runnable = new Runnable() {
+            public void run() {
+                dynamoDBMapper.save( therapistPatientListTableDO );
+            }
+        };
+        Thread mythread = new Thread(runnable);
+        mythread.start();
+        mythread.join();
+    }
+
+
     public PaginatedQueryList<TherapistPatientListTableDO> getPatientList(final DynamoDBMapper dynamoDBMapper, final TherapistPatientListTableDO therapistPatientListTableDO, final String therapist ) throws InterruptedException {
         final String sess = "(" + therapist + "_";
         Runnable runnable = new Runnable() {

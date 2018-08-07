@@ -6,19 +6,19 @@ import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageButton;
-import android.widget.SeekBar;
 import android.widget.TextView;
 
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.mobile.auth.core.IdentityManager;
 import com.amazonaws.mobile.config.AWSConfiguration;
 import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.DynamoDBMapper;
+import com.amazonaws.mobileconnectors.dynamodbv2.dynamodbmapper.PaginatedQueryList;
 import com.amazonaws.services.dynamodbv2.AmazonDynamoDBClient;
 
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
@@ -26,30 +26,38 @@ import org.eclipse.paho.client.mqttv3.MqttCallbackExtended;
 import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 
-import dyanamitechetan.vusikview.VusikView;
+import java.util.Map;
 
 public class Patient_Perform_Workout extends AppCompatActivity implements MediaPlayer.OnBufferingUpdateListener,MediaPlayer.OnCompletionListener {
 
-    private ImageButton btn_play_pause;
-    private SeekBar seekBar;
-    private TextView textView;
-    private VusikView musicView;
+    private TextView status;
+    private TextView count;
+    private ImageButton imageButton;
+    private CountDownTimer workoutTimer;
+    private CountDownTimer countDownTimer;
+    private CountDownTimer goTimer;
+    private CountDownTimer endTimer;
+    private CountDownTimer interTimer;
 
     private MediaPlayer mediaPlayer;
     private int mediaFileLength;
     private int realTimeLength;
     final Handler handler = new Handler();
     MQTT_Helper mqttHelper;
+    int cur_time;
+    private DynamoDBMapper dynamoDBMapper2;
+    private int int_sessions;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_patient__perform__workout);
         Intent in = getIntent();
-        final String cur_patient = in.getStringExtra( "com.example.richie.CUR_PATIENT" );
-        final String workout_bpm = in.getStringExtra( "com.example.richie.WORKOUT_BPM" );
-        final String workout_time = in.getStringExtra( "com.example.richie.WORKOUT_TIME" );
-        int workout_time_int = Integer.parseInt( workout_time );
+        final String cur_patient = in.getStringExtra("com.example.richie.CUR_PATIENT");
+        final String workout_bpm = in.getStringExtra("com.example.richie.WORKOUT_BPM");
+        final String workout_time = in.getStringExtra("com.example.richie.WORKOUT_TIME");
+        final String workout_type = in.getStringExtra( "com.example.richie.WORKOUT_TYPE");
+        final int workout_time_int = Integer.parseInt(workout_time);
 
         /**********************************************
          * Connects to AWS backend to retrieve information from database
@@ -63,40 +71,27 @@ public class Patient_Perform_Workout extends AppCompatActivity implements MediaP
         final AWSCredentialsProvider credentialsProvider = identityManager.getCredentialsProvider();
         final String userId = identityManager.getCachedUserID();
         AmazonDynamoDBClient dynamoDBClient = new AmazonDynamoDBClient(credentialsProvider);
-        final DynamoDBMapper dynamoDBMapper = DynamoDBMapper.builder()
+        dynamoDBMapper2 = DynamoDBMapper.builder()
                 .dynamoDBClient(dynamoDBClient)
                 .awsConfiguration(awsConfig)
                 .build();
+        final DynamoDBMapper dynamoDBMapper = dynamoDBMapper2;
         /**********************************************/
-        //mediaFileLength = Integer.parseInt(workout_time);
 
-        musicView = (VusikView) findViewById( R.id.musicView );
+        status = (TextView) findViewById( R.id.textViewStatus );
+        count = (TextView) findViewById( R.id.textViewCount );
+        imageButton = (ImageButton) findViewById( R.id.imageButtonStartStop );
 
-        seekBar = (SeekBar) findViewById(R.id.seekbar);
-        seekBar.setMax(99);
-        seekBar.setOnTouchListener(new View.OnTouchListener() {
-            @Override
-            public boolean onTouch(View view, MotionEvent motionEvent) {
-                if( mediaPlayer.isPlaying() ){
-                    SeekBar seekBar = (SeekBar)view;
-                    int playPosition = (mediaFileLength/1000)*seekBar.getProgress();
-                    mediaPlayer.seekTo( playPosition );
-                }
-                return false;
-            }
-        });
-
-        textView = (TextView) findViewById(R.id.textTimer);
-        btn_play_pause = (ImageButton) findViewById( R.id.btn_play_pause );
-
+        status.setText( "PRESS PLAY TO BEGIN" );
+        String temp = "";
         try {
-            startMqtt( dynamoDBMapper, cur_patient, workout_time );
+            temp = startMqtt( dynamoDBMapper, cur_patient, workout_time, workout_type );
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        final String workout_info = temp;
 
-        btn_play_pause.setOnClickListener(new View.OnClickListener() {
-
+        imageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 final ProgressDialog mDialog = new ProgressDialog( Patient_Perform_Workout.this );
@@ -110,24 +105,15 @@ public class Patient_Perform_Workout extends AppCompatActivity implements MediaP
 
                     @Override
                     protected String doInBackground(String... strings) {
-                        try{
-                            mediaPlayer.setDataSource( strings[0] );
-                            mediaPlayer.prepare();
-                        } catch (Exception e){
-
-                        }
-                        return "";
+                        return null;
                     }
 
                     @Override
                     protected void onPostExecute(String s) {
                         mediaFileLength = mediaPlayer.getDuration();
-                        System.out.println("^^^^^^^^^^^^^^^");
-                        System.out.println( mediaFileLength );
-                        System.out.println("^^^^^^^^^^^^^^^");
                         realTimeLength = mediaFileLength;
                         if( !mediaPlayer.isPlaying() ){
-                            MqttMessage myMess = new MqttMessage("START".getBytes());
+                            MqttMessage myMess = new MqttMessage(workout_info.getBytes());
                             myMess.setQos(1);
                             myMess.setRetained(false);
                             try {
@@ -135,31 +121,22 @@ public class Patient_Perform_Workout extends AppCompatActivity implements MediaP
                             } catch (MqttException e) {
                                 e.printStackTrace();
                             }
-                            System.out.println( "!!!!!!!!!!" );
-                            System.out.println( "START MQTT" );
-                            System.out.println( "!!!!!!!!!!" );
-                            mediaPlayer.start();
-                            musicView.start();
-                            btn_play_pause.setImageResource( R.drawable.ic_pause );
+                            myMess = new MqttMessage("START".getBytes());
+                            myMess.setQos(1);
+                            myMess.setRetained(false);
+                            try {
+                                mqttHelper.publish("WORKOUT",myMess);
+                            } catch (MqttException e) {
+                                e.printStackTrace();
+                            }
+                            startCountDown( workout_time_int, cur_patient );
+                            imageButton.setImageResource( R.drawable.ic_stop );
                         }
                         else{
-                            MqttMessage myMess = new MqttMessage("PAUSE".getBytes());
-                            myMess.setQos(1);
-                            myMess.setRetained(false);
-                            try {
-                                mqttHelper.publish("WORKOUT",myMess);
-                            } catch (MqttException e) {
-                                e.printStackTrace();
-                            }
-                            System.out.println( "!!!!!!!!!!" );
-                            System.out.println( "Pause MQTT" );
-                            System.out.println( "!!!!!!!!!!" );
-                            mediaPlayer.pause();
-                            musicView.stopNotesFall();
-                            btn_play_pause.setImageResource( R.drawable.ic_play2 );
+                            startInterTimer( cur_patient, Integer.toString(workout_time_int - cur_time) );
+                            imageButton.setImageResource( R.drawable.ic_stop );
                         }
 
-                        updateSeekBar( workout_time, workout_bpm );
                         mDialog.dismiss();
                     }
                 };
@@ -170,65 +147,73 @@ public class Patient_Perform_Workout extends AppCompatActivity implements MediaP
         createMediaPlayer(workout_bpm);
     }
 
-    private void updateSeekBar( final String wt, final String workout_bpm ){
-        final int workout_time = Integer.parseInt( wt ) * 1000;
 
-        if( mediaPlayer.getCurrentPosition() >= workout_time ){
-            seekBar.setProgress( 0 );
-            mediaPlayer.stop();
-            createMediaPlayer( workout_bpm );
-            btn_play_pause.setImageResource(R.drawable.ic_play);
-            musicView.stopNotesFall();
-            MqttMessage myMess = new MqttMessage("END".getBytes());
-            myMess.setQos(1);
-            myMess.setRetained(false);
-            try {
-                mqttHelper.publish("WORKOUT",myMess);
-            } catch (MqttException e) {
-                e.printStackTrace();
+    private void startCountDown( final int workout_time, final String cur_patient ){
+        status.setText( "BEGIN WORKOUT IN:");
+        count.setText( "5" );
+        imageButton.setClickable( false );
+        imageButton.setEnabled( false );
+        countDownTimer = new CountDownTimer( 5000, 1000) {
+            @Override
+            public void onTick(long l) {
+                count.setText( Long.toString(l/1000));
             }
-        }
 
-        seekBar.setProgress( (int) (((float)mediaPlayer.getCurrentPosition() / workout_time) * 100) );
-        if( mediaPlayer.isPlaying() ){
-            Runnable updater = new Runnable() {
-                @Override
-                public void run() {
-                    updateSeekBar( wt, workout_bpm );
-                    realTimeLength = (int) mediaPlayer.getCurrentPosition()/1000; //declare 1 second
-                    int minutes = realTimeLength/60;
-                    int seconds = realTimeLength%60;
-                    String timer;
-                    if( minutes >= 10 ) {
-                        if (seconds >= 10)
-                            timer = String.format("%d:%d", minutes, seconds);
-                        else
-                            timer = String.format("%d:0%d", minutes, seconds);
-                    }
-                    else{
-                        if (seconds >= 10)
-                            timer = String.format("0%d:%d", minutes, seconds);
-                        else
-                            timer = String.format("0%d:0%d", minutes, seconds);
-                    }
-                    textView.setText( timer);
-
-                }
-            };
-            handler.postDelayed(updater, 1000);
-        }
+            @Override
+            public void onFinish() {
+                startGoTimer( workout_time, cur_patient );
+            }
+        };
+        countDownTimer.start();
     }
 
-    @Override
-    public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
-        seekBar.setSecondaryProgress(i);
+
+    private void startGoTimer( final int workout_time, final String cur_patient ){
+        status.setText( "GO!" );
+        count.setText("");
+        goTimer = new CountDownTimer(1000,1000) {
+            @Override
+            public void onTick(long l) {
+
+            }
+            @Override
+            public void onFinish() {
+                startCountWorkout( workout_time, cur_patient );
+            }
+        };
+        goTimer.start();
     }
 
-    @Override
-    public void onCompletion(MediaPlayer mediaPlayer) {
-        btn_play_pause.setImageResource(R.drawable.ic_play);
-        musicView.stopNotesFall();
-        MqttMessage myMess = new MqttMessage("END".getBytes());
+
+    private void startCountWorkout(final int workout_time, final String cur_patient ){
+        status.setText( "PERFORM WORKOUT" );
+        count.setText( Integer.toString(workout_time) );
+        imageButton.setClickable( true );
+        imageButton.setEnabled( true );
+        mediaPlayer.start();
+        workoutTimer = new CountDownTimer( workout_time * 1000, 1000) {
+            @Override
+            public void onTick(long l) {
+                count.setText( Long.toString( l/1000 ));
+                cur_time = (int)(l/1000);
+            }
+
+            @Override
+            public void onFinish() {
+                startInterTimer( cur_patient, Integer.toString(workout_time) );
+            }
+        };
+        workoutTimer.start();
+    }
+
+
+    private void startInterTimer( final String cur_patient, final String time ){
+        mediaPlayer.stop();
+        workoutTimer.cancel();
+        count.setText( "0" );
+        status.setText( "PERFORM WORKOUT" );
+        String sending = "STOP " + time;
+        MqttMessage myMess = new MqttMessage(sending.getBytes());
         myMess.setQos(1);
         myMess.setRetained(false);
         try {
@@ -236,29 +221,87 @@ public class Patient_Perform_Workout extends AppCompatActivity implements MediaP
         } catch (MqttException e) {
             e.printStackTrace();
         }
+        interTimer = new CountDownTimer(1500, 1000) {
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                try {
+                    startEndTimer( cur_patient, time );
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        interTimer.start();
     }
 
-    private void startMqtt( final DynamoDBMapper dynamoDBMapper, final String cur_patient, final String workout_time ) throws InterruptedException {
+
+    private void startEndTimer( final String cur_patient, final String time ) throws InterruptedException {
+        mediaPlayer.stop();
+        workoutTimer.cancel();
+        ErrorDataNewDO errorDataNewDO = new ErrorDataNewDO();
+        String result = errorDataNewDO.checkError( dynamoDBMapper2, cur_patient, int_sessions );
+        status.setText( result );
+        count.setText( "" );
+        final Intent next = new Intent( Patient_Perform_Workout.this, Patient_First_Screen.class );
+        next.putExtra( "com.example.richie.CURRENT_PATIENT", cur_patient );
+        endTimer = new CountDownTimer( 1000, 1000) {
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                startActivity( next );
+                finish();
+            }
+        };
+        endTimer.start();
+    }
+
+
+    private String startMqtt( final DynamoDBMapper dynamoDBMapper, final String cur_patient, final String workout_time, final String workout_type ) throws InterruptedException {
         OverallPatientPerformanceTableDO temp = new OverallPatientPerformanceTableDO();
         temp.setPUser( "(" + cur_patient + ")" );
-        System.out.println( "^^^^^^^^^^^^^^^^" );
-        System.out.println( temp.getPUser() );
-        System.out.println( "^^^^^^^^^^^^^^^^" );
-        String total_sessions = Integer.toString( temp.getTotalSessions(dynamoDBMapper, temp) );
-        final String info = workout_time + " " + total_sessions;
+        int_sessions = temp.getTotalSessions(dynamoDBMapper, temp);
+        String total_sessions = Integer.toString( int_sessions );
+        double goal_stride = 0;
+        if( workout_type.equals("Progressive") ){
+            PaginatedQueryList<OverallPatientPerformanceTableDO> xx = temp.getSessionData( dynamoDBMapper, temp, int_sessions-1);
+            Map<String, String> yy = xx.get(0).getData();
+            goal_stride = Double.parseDouble( yy.get("AvgStrideLength") );
+            double zz = goal_stride*0.05;
+            goal_stride = goal_stride + zz;
+        }
+        UserInfoNewDO temp_user = new UserInfoNewDO();
+        temp_user.setUsername( cur_patient );
+        String temp_leg_length = "";
+        String temp_height = "";
+        double leg_length = 0;
+        double height = 0;
+        PaginatedQueryList<UserInfoNewDO> list_leg = temp_user.findUser( dynamoDBMapper, temp_user );
+        if( list_leg.size() > 0 ){
+            temp_leg_length = list_leg.get(0).getLegLength();
+            leg_length = Double.parseDouble( temp_leg_length );
+            leg_length = leg_length*0.0254;
+
+            if( workout_type.equals( "Standardized") ){
+                temp_height = list_leg.get(0).getHeight();
+                height = Double.parseDouble( temp_height );
+                goal_stride = findStrideLength( height );
+            }
+        }
+        final String info = total_sessions + " " + String.format( "%.2f", leg_length) + " " + cur_patient + " " + workout_time + " " + String.format( "%.2f", goal_stride);
         mqttHelper = new MQTT_Helper(getApplicationContext());
         mqttHelper.setCallback(new MqttCallbackExtended() {
             @Override
             public void connectComplete(boolean b, String s) {
                 Log.w("Debug", "MQTT CONNECTED");
-                MqttMessage myMess = new MqttMessage(info.getBytes());
-                myMess.setQos(1);
-                myMess.setRetained(false);
-                try {
-                    mqttHelper.publish("WORKOUT",myMess);
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
             }
 
             @Override
@@ -276,6 +319,33 @@ public class Patient_Perform_Workout extends AppCompatActivity implements MediaP
                 Log.w("Debug", "MQTT DELIVERY COMPLETE!");
             }
         });
+        return info;
+    }
+
+
+    public double findStrideLength( double height ){
+        double result = height*0.413*0.0254;
+        return result;
+    }
+
+
+    @Override
+    public void onBufferingUpdate(MediaPlayer mediaPlayer, int i) {
+        //need to fix
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+
+        /*//need to fix
+        MqttMessage myMess = new MqttMessage("STOP".getBytes());
+        myMess.setQos(1);
+        myMess.setRetained(false);
+        try {
+            mqttHelper.publish("WORKOUT",myMess);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }*/
     }
 
     public void createMediaPlayer( final String workout_bpm ){
@@ -327,4 +397,5 @@ public class Patient_Perform_Workout extends AppCompatActivity implements MediaP
         mediaPlayer.setOnBufferingUpdateListener(this);
         mediaPlayer.setOnCompletionListener(this);
     }
+
 }

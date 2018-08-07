@@ -1,0 +1,4 @@
+Lambda-to-DynamoDB Connection Link:
+https://docs.aws.amazon.com/lambda/latest/dg/with-ddb-example.html
+
+Tutorial goes through an application where there is a lambda function which is invoked by the dynamodb message stream. The lambda function retrieves this stream and logs it in cloudwatch

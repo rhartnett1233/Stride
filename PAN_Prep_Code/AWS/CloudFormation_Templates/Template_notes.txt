@@ -1,0 +1,399 @@
+Template Notes:
+https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/gettingstarted.templatebasics.html
+
+----------------------------------------------------------------------------------------------------------------
+
+Resource Object:
+- Resources object must delcare atleast 1 resource
+
+- a resource must have a Type attribute. which defines the kind of AWS resource you want to create
+	-special format:
+		AWS::ProductIdentifier::ResourceType
+- example: following template declares a single resource of type AWS::S3::Bucket: with the name HelloBucket
+		{
+	    	"Resources" : {
+	        	"HelloBucket" : {
+	            	"Type" : "AWS::S3::Bucket"
+	        	}
+	    	}
+		}
+
+----------------------------------------------------------------------------------------------------------------
+
+Resource Properties and Using Resources Together:
+- example: template sets up access control for the resource 
+		{
+		    "Resources" : {
+		        "HelloBucket" : {
+		            "Type" : "AWS::S3::Bucket",
+		            "Properties" : {
+		               "AccessControl" : "PublicRead",
+		               "WebsiteConfiguration" : {
+		                    "IndexDocument" : "index.html",
+		                    "ErrorDocument" : "error.html"            
+		               }               
+		            }
+		        }
+		    }
+		}
+		-also note that there are two properties with S3
+		-IndexDocument and ErrorDocument are both subproperties of WebsiteConfiguration
+
+- AWS CloudFormation has a number of intrinsic functions that you can use to refer to other resources and their properties
+	-use Ref function to refer to an identifying property of a resource
+- example: following template contains an AWS::EC2::Instance resource
+		{
+		    "Resources": {
+		        "Ec2Instance": {
+		            "Type": "AWS::EC2::Instance",
+		            "Properties": {
+		                "SecurityGroups": [
+		                    {
+		                        "Ref": "InstanceSecurityGroup"
+		                    }
+		                ],
+		                "KeyName": "mykey",
+		                "ImageId": ""
+		            }
+		        },
+		        "InstanceSecurityGroup": {
+		            "Type": "AWS::EC2::SecurityGroup",
+		            "Properties": {
+		                "GroupDescription": "Enable SSH access via port 22",
+		                "SecurityGroupIngress": [
+		                    {
+		                        "IpProtocol": "tcp",
+		                        "FromPort": "22",
+		                        "ToPort": "22",
+		                        "CidrIp": "0.0.0.0/0"
+		                    }
+		                ]
+		            }
+		        }
+		    }
+		}
+	-The resource's SecurityGroups property calls the Ref function to refer to the AWS::EC2::SecurityGroup resource InstanceSecurityGroup
+
+- Fn::GetAtt is a function used to get attributes from a resource
+	-takes two parameters:
+		1. logical name of the resource
+		2. name of the attribute to be recieved
+
+----------------------------------------------------------------------------------------------------------------
+
+Receiving User Input Using Input Parameters:
+- A parameter contains a list of attributes that define its value and constraints against its value
+	-The only required attribute is Type, which can be String, Number, or an AWS-specific type
+-example: following template fragment is a Parameters object that declares the parameters used
+		"Parameters": {
+		    "KeyName": {
+		      "Description" : "Name of an existing EC2 KeyPair to enable SSH access into the WordPress web server",
+		      "Type": "AWS::EC2::KeyPair::KeyName"
+		    },
+		    "WordPressUser": {
+		      "Default": "admin",
+		      "NoEcho": "true",
+		      "Description" : "The WordPress database admin account user name",
+		      "Type": "String",
+		      "MinLength": "1",
+		      "MaxLength": "16",
+		      "AllowedPattern" : "[a-zA-Z][a-zA-Z0-9]*"
+		    },
+		    "WebServerPort": {
+		      "Default": "8888",
+		      "Description" : "TCP/IP port for the WordPress web server",
+		      "Type": "Number",
+		      "MinValue": "1",
+		      "MaxValue": "65535"
+		    }
+		  }
+
+----------------------------------------------------------------------------------------------------------------
+
+Specifying Conditional Values Using Mappings:
+- Mapping is a way to do some sort of logic in the template
+	-very useful for filling out region the stack is being created
+	-can use function to find the region and then use mapping to relate that region with an AMI
+		{
+		  "Parameters": {
+		    "KeyName": {
+		      "Description": "Name of an existing EC2 KeyPair to enable SSH access to the instance",
+		      "Type": "String"
+		    }
+		  },
+		  "Mappings": {
+		    "RegionMap": {
+		      "us-east-1": {
+		        "AMI": "ami-76f0061f"
+		      },
+		      "us-west-1": {
+		        "AMI": "ami-655a0a20"
+		      },
+		      "eu-west-1": {
+		        "AMI": "ami-7fd4e10b"
+		      },
+		      "ap-southeast-1": {
+		        "AMI": "ami-72621c20"
+		      },
+		      "ap-northeast-1": {
+		        "AMI": "ami-8e08a38f"
+		      }
+		    }
+		  },
+		  "Resources": {
+		    "Ec2Instance": {
+		      "Type": "AWS::EC2::Instance",
+		      "Properties": {
+		        "KeyName": {
+		          "Ref": "KeyName"
+		        },
+		        "ImageId": {
+		          "Fn::FindInMap": [
+		            "RegionMap",
+		            {
+		              "Ref": "AWS::Region"
+		            },
+		            "AMI"
+		          ]
+		        },
+		        "UserData": {
+		          "Fn::Base64": "80"
+		        }
+		      }
+		    }
+		  }
+		}
+
+----------------------------------------------------------------------------------------------------------------
+
+Constructed Values and Output Values:
+- Fn::Join function takes two parameters, a delimiter that separates the values you want to concatenate and an array of values in the order that you want them to appear
+		"Fn::Join": [
+		  "",
+		  [
+		    "HTTP:",
+		    {
+		      "Ref": "WebServerPort"
+		    },
+		    "/"
+		  ]
+		]
+	-produces "HTTP:8000/" if the web server port is 8000
+
+- The Outputs object in the template contains declarations for the values that you want to have available after the stack is created
+	-An output is a convenient way to capture important information about your resources or input parameters
+
+----------------------------------------------------------------------------------------------------------------
+
+Local Artifacts:
+- A local artifact is a path to a file or folder that the package command uploads to Amazon S3
+	-For example, an artifact can be a local path to your AWS Lambda function's source code or an Amazon API Gateway REST API's OpenAPI file
+	-For some resource properties that require an Amazon S3 location (a bucket name and filename), you can specify local references instead by using the package command
+
+
+----------------------------------------------------------------------------------------------------------------
+Template Sections
+----------------------------------------------------------------------------------------------------------------
+Metadata:
+- You can use the optional Metadata section to include arbitrary JSON or YAML objects that provide details about the template
+- For example, you can include template implementation details about specific resources
+- Metadata keys:
+	1. AWS::CloudFormation::Init
+		-Defines configuration tasks for the cfn-init helper script, which is useful for configuring and installing applications on EC2 instances
+	2. AWS::CloudFormation::Interface
+		-Defines the grouping and ordering of input parameters when they are displayed in the AWS CloudFormation console
+	3. AWS::CloudFormation::Designer
+		-Describes how your resources are laid out in AWS CloudFormation Designer
+
+
+
+Parameters:
+- Parameters enable you to input custom values to your template each time you create or update a stack
+- You use the Ref intrinsic function to reference a parameter, and AWS CloudFormation uses the parameter's value to provision the stack
+		
+		"Parameters" : {
+		  "InstanceTypeParameter" : {
+		    "Type" : "String",
+		    "Default" : "t2.micro",
+		    "AllowedValues" : ["t2.micro", "m1.small", "m1.large"],
+		    "Description" : "Enter t2.micro, m1.small, or m1.large. Default is t2.micro."
+		  }
+		}
+
+		"Ec2Instance" : {
+		  "Type" : "AWS::EC2::Instance",
+		  "Properties" : {
+		    "InstanceType" : { "Ref" : "InstanceTypeParameter" },
+		    "ImageId" : "ami-2f726546"
+		  }
+		}
+	-in this example the ec2 instance type is passed in as a parameter and retrieved using the ref function to be used to create the instance
+- list of properties and aws specific parameters here: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/parameters-section-structure.html
+
+
+
+Mappings:
+- matches a key to a corresponding set of named values
+- For example, if you want to set values based on a region, you can create a mapping that uses the region name as a key and contains the values you want to specify for each specific region
+	-You use the Fn::FindInMap intrinsic function to retrieve values in a map.
+
+		"Mappings" : {
+		  "Mapping01" : {
+		    "Key01" : {
+		      "Name" : "Value01"
+		    },
+		    "Key02" : {
+		      "Name" : "Value02"
+		    },
+		    "Key03" : {
+		      "Name" : "Value03"
+		    }
+		  }
+		}
+
+- can also do mapping with multiple values
+		
+		{
+		  "AWSTemplateFormatVersion" : "2010-09-09",
+
+		  "Mappings" : {
+		    "RegionMap" : {
+		      "us-east-1" : { "32" : "ami-6411e20d", "64" : "ami-7a11e213" },
+		      "us-west-1" : { "32" : "ami-c9c7978c", "64" : "ami-cfc7978a" },
+		      "eu-west-1" : { "32" : "ami-37c2f643", "64" : "ami-31c2f645" },
+		      "ap-southeast-1" : { "32" : "ami-66f28c34", "64" : "ami-60f28c32" },
+		      "ap-northeast-1" : { "32" : "ami-9c03a89d", "64" : "ami-a003a8a1" }
+		    }
+		  },
+
+		  "Resources" : {
+		    "myEC2Instance" : {
+		      "Type" : "AWS::EC2::Instance",
+		      "Properties" : {
+		        "ImageId" : { "Fn::FindInMap" : [ "RegionMap", { "Ref" : "AWS::Region" }, "32"]},
+		        "InstanceType" : "m1.small"
+		      }
+		    }
+		  }
+		}
+	-resources gets ImageId by going to RegionMap mapping, referencing the current region, and specifying 32
+
+
+
+Conditions:
+- includes statements that define when a resource is created or when a property is defined
+- For example, you can compare whether a value is equal to another value and based on the result of that condition, you can conditionally create resources
+- Conditions are evaluated based on input parameter values that you specify when you create or update a stack
+
+-- Using Conditions:
+	- To conditionally create resources, you must include statements in at least three different sections of a template:
+		1. Parameters section - define the input values you want to define your conditions
+		2. Conditons section - define conditions by using intrinsic conditions functions
+		3. Resources and Outputs sections - Associate conditions with the resources or outputs that you want to conditionally create
+
+- Syntax
+		"Conditions" : {
+		  "Logical ID" : {Intrinsic function}
+		}
+	- conditional intrinsic functions include:
+		1. Fn::And
+		2. Fn::Equals
+		3. Fn::If
+		4. Fn::Not
+		5. Fn::Or
+
+
+
+Transforms:
+- transforms help simplify template authoring by condensing the expression of AWS infrastructure as code and enabling reuse of template components
+- For example, you can condense a multiple-line resource declaration into a single line in your template
+- AWS CloudFormation allows for two transforms:
+	1. AWS::Serverless transform
+		- specifies the version of the AWS Serverless Application Model (AWS SAM) to use
+		- This model defines the AWS SAM syntax that you can use and how AWS CloudFormation processes it
+	2. AWS::Include transform:
+		- works with template snippets that are stored separately from the main AWS CloudFormation template
+
+
+
+Resources:
+- declares the AWS resources that you want to include in the stack
+
+		"Resources" : {
+		    "Logical ID" : {
+		        "Type" : "Resource type",
+		        "Properties" : {
+		            Set of properties
+		        }
+		    }
+		}
+
+- resource properties: additional options that you can specify for a resource
+	- For example, for each EC2 instance, you must specify an Amazon Machine Image (AMI) ID for that instance
+
+		"Resources" : {
+		    "MyInstance" : {
+		        "Type" : "AWS::EC2::Instance",
+		        "Properties" : {
+		            "UserData" : {
+		                "Fn::Base64" : {
+		                    "Fn::Join" : [ "", [ "Queue=", { "Ref" : "MyQueue" } ] ]
+		                 } },
+		            "AvailabilityZone" : "us-east-1a",
+		            "ImageId" : "ami-20b65349"
+		        }
+		    },
+
+		    "MyQueue" : {
+		        "Type" : "AWS::SQS::Queue",
+		        "Properties" : {
+		        }
+		    }
+		} 
+	- MyInstance resource includes the MyQueue resource as part of its UserData property
+
+
+
+Outputs:
+- declares outputs values that you can import into other stacks, return in response, or view in the AWS CloudFormation console
+- For example, you can output the S3 bucket name for a stack to make the bucket easier to find
+
+		"Outputs" : {
+		  "Logical ID" : {
+		    "Description" : "Information about the value",
+		    "Value" : "Value to return",
+		    "Export" : {
+		      "Name" : "Value to export"
+		    }
+		  }
+		}
+
+- Output fields:
+	1. Logical Id
+	2. Description
+	3. Value
+		- value of the property returned by the aws cloudformation describe-stacks command
+	4. Export
+		- The name of the resource output to be exported for a cross-stack reference
+
+- Example: the output named BackupLoadBalancerDNSName returns the DNS name for the resource with the logical ID BackupLoadBalancer only when the CreateProdResources condition is true
+	
+		"Outputs" : {
+		  "BackupLoadBalancerDNSName" : {
+		    "Description": "The DNSName of the backup load balancer",  
+		    "Value" : { "Fn::GetAtt" : [ "BackupLoadBalancer", "DNSName" ]},
+		    "Condition" : "CreateProdResources"
+		  },
+		  "InstanceID" : {
+		    "Description": "The Instance ID",  
+		    "Value" : { "Ref" : "EC2Instance" }
+		  }
+		}
+	
+
+
+
+
+
+
+
